@@ -129,11 +129,15 @@ static int cmd_x(char *args) {
   char *n_str = strtok(NULL," ");
   char *expr_str = strtok(NULL," ");
   if (!n_str || !expr_str) {
-    printf("please input x n expr\n");
+    printf("\033[31mplease input x n expr!\033[0m\n");
     return 0;
   }
 
-  
+  int n = atoi(n_str);
+  if (n <= 0) {
+    printf("\033[31mn must be larger than 0!\033[0m\n");
+  }
+
   return 0;
 }
 
