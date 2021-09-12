@@ -141,7 +141,7 @@ static int cmd_x(char *args) {
   }
   
   word_t val =  paddr_read(0x80000004, 4);
-  printf("val: 0x%lx\n", val);
+  printf("val: 0x%8lx\n", val);
   return 0;
 }
 
