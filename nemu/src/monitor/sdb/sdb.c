@@ -3,6 +3,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "sdb.h"
@@ -125,7 +126,15 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
-  return -1;
+  char *n_str = strtok(NULL," ");
+  char *expr_str = strtok(NULL," ");
+  if (!n_str || !expr_str) {
+    printf("please input x n expr\n");
+    return 0;
+  }
+
+  
+  return 0;
 }
 
 static int cmd_p(char *args) {
