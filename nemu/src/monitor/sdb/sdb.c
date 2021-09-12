@@ -100,7 +100,7 @@ static int cmd_help(char *args) {
 
 static int cmd_si(char *args) {
   char *n_str = strtok(NULL, " ");
-  uint64_t n = n_str == NULL ? 1 :  atoll(n_str);
+  int n = n_str == NULL ? 1 :  atoi(n_str);
   if (n <= 0) {
     printf("n must be larger than 0!\n");
     return 0;
@@ -108,7 +108,7 @@ static int cmd_si(char *args) {
 
   // TODO n step
   cpu_exec(n);
-
+  
   return 0;
 }
 
