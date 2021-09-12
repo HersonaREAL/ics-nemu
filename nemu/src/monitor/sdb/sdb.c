@@ -139,8 +139,8 @@ static int cmd_x(char *args) {
   if (n <= 0) {
     printf("\033[31mn must be larger than 0!\033[0m\n");
   }
-
-  word_t val =  paddr_read(0x80000000, 1);
+  
+  word_t val =  paddr_read(0x80000000, 4);
   printf("val: 0x%lx\n", val);
   return 0;
 }
