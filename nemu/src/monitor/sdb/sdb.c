@@ -2,6 +2,9 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "sdb.h"
 #include "utils.h"
 
@@ -96,7 +99,14 @@ static int cmd_help(char *args) {
 }
 
 static int cmd_si(char *args) {
-  return -1;
+  char *n_str = strtok(NULL, " ");
+  int n = n_str == NULL ? 1 :  atoi(n_str);
+  if (n <= 0) {
+    printf("n input error!\n");
+    return 0;
+  }
+
+  return 0;
 }
 
 static int cmd_info(char *args) {
