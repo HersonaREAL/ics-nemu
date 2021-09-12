@@ -120,7 +120,7 @@ static int cmd_info(char *args) {
   } else if (strcmp(str,"w") == 0) {
     // TODO print watch point
   } else {
-    printf("error args for info\n");
+    printf("\033[31merror args for info\033[0m\n");
   }
   return 0;
 }
