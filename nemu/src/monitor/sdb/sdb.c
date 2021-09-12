@@ -114,8 +114,8 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   char *str = strtok(NULL, " ");
-  if (strcmp(str,"r") == 0) {
-
+  if (str == NULL || strcmp(str,"r") == 0) {
+    isa_reg_display();
   } else if (strcmp(str,"w") == 0) {
     // TODO print watch point
   } else {
