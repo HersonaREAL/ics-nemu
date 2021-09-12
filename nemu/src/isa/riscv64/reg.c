@@ -14,9 +14,9 @@ void isa_reg_display() {
   for (int i = 0; i < reg_cnt; ++i) {
     uint64_t reg_val = gpr(i);
     if (i%2 == 0 ) {
-      printf("%s: 0x%lx, %ld\t",regs[i], reg_val,reg_val);
+      printf("\033[31m%s\033[0m: 0x%lx, %ld\t",regs[i], reg_val,reg_val);
     } else {
-      printf("%s: 0x%lx, %ld\n",regs[i],reg_val,reg_val);
+      printf("\033[31m%s\033[0m: 0x%lx, %ld\n",regs[i],reg_val,reg_val);
     }
   }
   printf("pc: 0x%lx\n",cpu.pc);
