@@ -102,10 +102,13 @@ static int cmd_si(char *args) {
   char *n_str = strtok(NULL, " ");
   int n = n_str == NULL ? 1 :  atoi(n_str);
   if (n <= 0) {
-    printf("n input error!\n");
+    printf("n must be larger than 0!\n");
     return 0;
   }
 
+  // TODO n step
+  cpu_exec(n);
+  
   return 0;
 }
 
