@@ -19,7 +19,7 @@ void isa_reg_display() {
       printf("%s: 0x%lx, %ld\n",regs[i],reg_val,reg_val);
     }
   }
-  printf("pc: %lx\n",cpu.pc);
+  printf("pc: 0x%lx\n",cpu.pc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
