@@ -140,8 +140,10 @@ static int cmd_x(char *args) {
     printf("\033[31mn must be larger than 0!\033[0m\n");
   }
   
-  word_t val =  paddr_read(0x80000004, 4);
-  printf("val: 0x%08lx\n", val);
+  // just 0x
+  paddr_t addr =  strtoull(expr_str,NULL,16);
+  word_t val =  paddr_read(addr, 4);
+  printf("%s: 0x%08lx\n",expr_str ,val);
   return 0;
 }
 
