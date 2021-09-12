@@ -41,6 +41,18 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args);
+
+static int cmd_info(char *args);
+
+static int cmd_x(char *args);
+
+static int cmd_p(char *args);
+
+static int cmd_w(char *args);
+
+static int cmd_d(char *args);
+
 static struct {
   const char *name;
   const char *description;
@@ -49,9 +61,13 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
   /* TODO: Add more commands */
-
+  { "si", "pc run n steps", cmd_si },
+  { "info", "r print info of reg, w print info of watch point", cmd_info},
+  { "x", "scan mem, x N expr", cmd_x },
+  { "p", "print value of expr", cmd_p },
+  { "w", "add watch point", cmd_w },
+  { "d", "delete watch point", cmd_d },
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -77,6 +93,30 @@ static int cmd_help(char *args) {
     printf("Unknown command '%s'\n", arg);
   }
   return 0;
+}
+
+static int cmd_si(char *args) {
+  return -1;
+}
+
+static int cmd_info(char *args) {
+  return -1;
+}
+
+static int cmd_x(char *args) {
+  return -1;
+}
+
+static int cmd_p(char *args) {
+  return -1;
+}
+
+static int cmd_w(char *args) {
+  return -1;
+}
+
+static int cmd_d(char *args) {
+  return -1;
 }
 
 void sdb_set_batch_mode() {
