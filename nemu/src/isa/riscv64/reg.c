@@ -10,8 +10,8 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  //int len = sizeof(regs);
-  for (int i = 0; i < 32; ++i) {
+  int reg_cnt = sizeof(regs) / sizeof(char *);
+  for (int i = 0; i < reg_cnt; ++i) {
     printf("%s: \n",regs[i]);
   }
 }
