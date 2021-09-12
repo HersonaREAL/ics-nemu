@@ -12,7 +12,11 @@ const char *regs[] = {
 void isa_reg_display() {
   int reg_cnt = sizeof(regs) / sizeof(char *);
   for (int i = 0; i < reg_cnt; ++i) {
-    printf("%s: \n",regs[i]);
+    if (i%2 ==0 ) {
+      printf("%s: ",regs[i]);
+    } else {
+      printf("%s: \n",regs[i]);
+    }
   }
 }
 
