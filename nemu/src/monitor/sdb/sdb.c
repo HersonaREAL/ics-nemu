@@ -142,9 +142,10 @@ static int cmd_x(char *args) {
   
   // just 0x
   paddr_t addr =  strtoull(expr_str,NULL,0);
+  printf("%s: ", expr_str);
   for (int i = 0; i < n; ++i) {
     word_t val =  paddr_read(addr + (i<<2), 4);
-    printf("%s: 0x%08lx\t",expr_str ,val);
+    printf("0x%08lx\t",val);
   }
   printf("\n");
   return 0;
