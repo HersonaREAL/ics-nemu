@@ -113,7 +113,15 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  return -1;
+  char *str = strtok(NULL, " ");
+  if (strcmp(str,"r") == 0) {
+
+  } else if (strcmp(str,"w") == 0) {
+    // TODO print watch point
+  } else {
+    printf("error args for info\n");
+  }
+  return 0;
 }
 
 static int cmd_x(char *args) {
