@@ -10,10 +10,11 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  // for (int i = 0; i < sizeof(regs); ++i) {
-  //   printf("%s: \n",regs[i]);
-  // }
-  printf("%s\n",regs[0]);
+  for (int i = 0; i < 32/* sizeof(regs) */; ++i) {
+    // printf("%s ",regs[i]);
+    const char* s = regs[i];
+    printf("%s ",s);
+  }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
