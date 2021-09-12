@@ -12,10 +12,11 @@ const char *regs[] = {
 void isa_reg_display() {
   int reg_cnt = sizeof(regs) / sizeof(char *);
   for (int i = 0; i < reg_cnt; ++i) {
+    uint64_t reg_val = gpr(i);
     if (i%2 == 0 ) {
-      printf("%s: %lx\t",regs[i], gpr(i));
+      printf("%s: %lx, %ld\t",regs[i], reg_val,reg_val);
     } else {
-      printf("%s: %lx\n",regs[i],gpr(i));
+      printf("%s: %lx, %ld\n",regs[i],reg_val,reg_val);
     }
   }
   printf("pc: %lx\n",cpu.pc);
