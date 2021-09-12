@@ -141,7 +141,7 @@ static int cmd_x(char *args) {
   }
   
   // just 0x
-  paddr_t addr =  strtoull(expr_str,NULL,0);
+  paddr_t addr =  strtoull(expr_str,NULL,16);
   printf("%s: ", expr_str);
   for (int i = 0; i < n; ++i) {
     word_t val =  paddr_read(addr + (i<<2), 4);
