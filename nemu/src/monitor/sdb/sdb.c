@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "common.h"
+#include "memory/paddr.h"
 #include "sdb.h"
 #include "utils.h"
 
@@ -138,6 +140,7 @@ static int cmd_x(char *args) {
     printf("\033[31mn must be larger than 0!\033[0m\n");
   }
 
+  paddr_read(0x80000, 1);
   return 0;
 }
 
