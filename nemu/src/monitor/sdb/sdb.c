@@ -159,7 +159,7 @@ static int cmd_p(char *args) {
   bool res = false;
   uint64_t val = expr(args,&res);
   if (!res) {
-    printf("expr invaild!");
+    printf("expr invaild!\n");
     return 0;
   }
 
