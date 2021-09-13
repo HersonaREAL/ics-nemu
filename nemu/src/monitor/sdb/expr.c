@@ -141,7 +141,6 @@ static bool check_parentheses(int p, int q) {
   for (int i = p; i <= q; ++i) {
     if (tokens[i].type == '(') ++lb_num;
     else if (tokens[i].type == ')') --lb_num;
-    printf("check p:%d q:%d, lb_num:%d\n",p,q,lb_num);
     if (lb_num <= 0 && i != q)
       return false;
   }
@@ -168,7 +167,6 @@ static int getOp(int p, int q) {
 }
 
 static word_t eval(int p, int q) {
-  printf("eval p:%d,q:%d\n",p,q);
   if (p > q) {
     Assert(0, "parse error, p > q!");
   }
