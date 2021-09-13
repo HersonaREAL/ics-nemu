@@ -95,7 +95,7 @@ static bool make_token(char *e) {
           case '*' : printf("get *\n"); break;
           case '/' : printf("get /\n"); break;
           case '(' : printf("get (\n"); break;
-          case ')' : printf("get (\n"); break;
+          case ')' : printf("get )\n"); break;
           case TK_NOTYPE : printf("get spcae\n"); break;
           case TK_DECNUM : printf("get dec number\n"); break;
           case TK_HEXNUM : printf("get hex number\n"); break;
