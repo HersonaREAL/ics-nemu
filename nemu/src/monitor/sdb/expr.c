@@ -163,7 +163,7 @@ static int getOp(int p, int q) {
       pos = i;
     }
   }
-  Assert(pos != -1, "getOp error!");
+  Assert(pos != -1, "getOp error! pos == -1,p: %d,q: %d",p,q);
   return pos;
 }
 
