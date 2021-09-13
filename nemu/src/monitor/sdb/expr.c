@@ -5,6 +5,7 @@
  */
 #include <regex.h>
 #include <stdio.h>
+#include <string.h>
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
@@ -90,16 +91,29 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          case '+' : printf("get +\n"); break;
-          case '-' : printf("get -\n"); break;
-          case '*' : printf("get *\n"); break;
-          case '/' : printf("get /\n"); break;
-          case '(' : printf("get (\n"); break;
-          case ')' : printf("get )\n"); break;
-          case TK_NOTYPE : printf("get spcae\n"); break;
-          case TK_DECNUM : printf("get dec number\n"); break;
-          case TK_HEXNUM : printf("get hex number\n"); break;
-          default: TODO();
+          case '+' : 
+          case '-' : 
+          case '*' : 
+          case '/' : 
+          case '(' : 
+          case ')' : tokens[nr_token++].type = rules[i].token_type; break;
+
+          case TK_DECNUM : 
+          case TK_HEXNUM : {
+            if (substr_len > 32) {
+              Assert(0,"token length larger than 32!");
+            }
+            tokens[nr_token].type = rules[i].token_type;
+            strncpy(tokens[nr_token].str,substr_start,substr_len);
+            nr_token++;
+          }
+
+          case TK_NOTYPE :  break;
+          default: {
+            printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
+            nr_token = 0;
+            return false;
+          }
         }
 
         break;
