@@ -31,7 +31,7 @@ static struct rule {
   {"\\*",'*'},          // mul
   {"\\/",'/'},          // chu
   {"\\(", '('},           // left bracket
-  {"\\)", ')'},           // right bracket
+  {")", ')'},           // right bracket
   {"[:xdigit:]+", TK_DECNUM},      // dec number
   {"0x[:alnum:]+", TK_HEXNUM},     // hex number
 };
