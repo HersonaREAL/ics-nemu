@@ -32,7 +32,7 @@ static struct rule {
   {"\\(", '('},           // left bracket
   {"\\)", ')'},           // right bracket
   {"[:xdigit:]+", TK_DECNUM},      // dec number
-  {"0x[:alnum:]+"}
+  {"0x[:alnum:]+", TK_HEXNUM},     // hex number
 };
 
 #define NR_REGEX ARRLEN(rules)
