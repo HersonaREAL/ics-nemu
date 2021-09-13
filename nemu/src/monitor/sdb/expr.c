@@ -138,11 +138,11 @@ static bool check_parentheses(int p, int q) {
   }
 
   int lb_num = 0;
-  for (int i = p; i < q; ++i) {
+  for (int i = p; i <= q; ++i) {
     if (tokens[i].type == '(') ++lb_num;
     else if (tokens[i].type == ')') --lb_num;
     printf("check p:%d q:%d, lb_num:%d\n",p,q,lb_num);
-    if (lb_num <= 0 && i != q-1)
+    if (lb_num <= 0 && i != q)
       return false;
   }
 
@@ -152,7 +152,7 @@ static bool check_parentheses(int p, int q) {
 static int getOp(int p, int q) {
   Assert(p < q, "getOp error, p > q!");
   int pos = -1;
-  for (int i = p ; i < q && tokens[i].type != '(' ; ++i) {
+  for (int i = p ; i <= q && tokens[i].type != '(' ; ++i) {
     if (tokens[i].type == '+' || tokens[i].type == '-') {
       pos = i;
     }
