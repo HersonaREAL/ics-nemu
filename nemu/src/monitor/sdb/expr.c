@@ -168,7 +168,7 @@ static int getOp(int p, int q) {
 }
 
 static word_t eval(int p, int q) {
-  printf("eval p:%d,q:%d",p,q);
+  printf("eval p:%d,q:%d\n",p,q);
   if (p > q) {
     Assert(0, "parse error, p > q!");
   }
