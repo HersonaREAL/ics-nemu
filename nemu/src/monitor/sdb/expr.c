@@ -4,6 +4,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <stdio.h>
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
@@ -89,6 +90,12 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
+          case '+' : printf("get +\n"); break;
+          case '-' : printf("get -\n"); break;
+          case '*' : printf("get *\n"); break;
+          case '/' : printf("get /\n"); break;
+          case TK_DECNUM : printf("get dec number\n"); break;
+          case TK_HEXNUM : printf("get hex number\n"); break;
           default: TODO();
         }
 
