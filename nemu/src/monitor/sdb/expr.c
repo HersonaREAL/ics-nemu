@@ -29,8 +29,8 @@ static struct rule {
   {"-", '-'},           // sub
   {"\\*",'*'},          // mul
   {"\\/",'/'},          // chu
-  {"(", '('},           // left bracket
-  {")", ')'},           // right bracket
+  //{"(", '('},           // left bracket
+  //{")", ')'},           // right bracket
   //{"[:alnum:]+", TK_DECNUM},      // dec number
 };
 
