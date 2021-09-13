@@ -31,7 +31,8 @@ static struct rule {
   {"\\/",'/'},          // chu
   {"\\(", '('},           // left bracket
   {"\\)", ')'},           // right bracket
-  {"[:alnum:]+", TK_DECNUM},      // dec number
+  {"[:xdigit:]+", TK_DECNUM},      // dec number
+  {"0x[:alnum:]+"}
 };
 
 #define NR_REGEX ARRLEN(rules)
