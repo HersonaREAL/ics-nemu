@@ -158,8 +158,7 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
   bool res = false;
-  char *expr_str = strtok(NULL," ");
-  expr(expr_str,&res);
+  expr(args,&res);
   return -1;
 }
 
