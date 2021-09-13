@@ -7,7 +7,9 @@
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
-
+  TK_DECNUM,
+  TK_HEXNUM,
+  TK_REG,
   /* TODO: Add more token types */
 
 };
@@ -24,6 +26,12 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"-", '-'},           // sub
+  {"\\*",'*'},          // mul
+  {"\\/",'/'},          // chu
+  {"(", '('},           // left bracket
+  {")", ')'},           // right bracket
+  {"[:alnum:]+", TK_DECNUM},      // dec number
 };
 
 #define NR_REGEX ARRLEN(rules)
