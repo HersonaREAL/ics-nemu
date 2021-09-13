@@ -110,7 +110,6 @@ static int cmd_si(char *args) {
     return 0;
   }
 
-  // TODO n step
   cpu_exec(n);
   
   return 0;
@@ -158,8 +157,14 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
   bool res = false;
-  expr(args,&res);
-  return -1;
+  uint64_t val = expr(args,&res);
+  if (!res) {
+    printf("expr invaild!");
+    return 0;
+  }
+
+  printf("%s: %ld\n",args,val);
+  return 0;
 }
 
 static int cmd_w(char *args) {

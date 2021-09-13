@@ -1,9 +1,12 @@
+#include "common.h"
+#include "debug.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -111,7 +114,6 @@ static bool make_token(char *e) {
           case TK_NOTYPE :  break;
           default: {
             printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
-            nr_token = 0;
             return false;
           }
         }
@@ -129,15 +131,78 @@ static bool make_token(char *e) {
   return true;
 }
 
+static bool check_parentheses(int p, int q) {
+  Assert(p > q, "check_parentheses error!");
+  if (tokens[p].type != '(') {
+    return false;
+  }
+
+  int lb_num = 0;
+  for (int i = p; i < q; ++i) {
+    if (tokens[i].type == '(') ++lb_num;
+    else if (tokens[i].type == ')') --lb_num;
+
+    if (lb_num <= 0 && i != q-1)
+      return false;
+  }
+  
+  return lb_num == 0;
+}
+
+static int getOp(int p, int q) {
+  Assert(p > q, "getOp error, p > q!");
+  int pos = -1;
+  for (int i = p ; i < q && tokens[i].type != '(' ; ++i) {
+    if (tokens[i].type == '+' || tokens[i].type == '-') {
+      pos = i;
+    }
+
+    if (tokens[i].type == '*' || tokens[i].type == '/') {
+      if (tokens[pos].type == '+' || tokens[pos].type == '-') 
+        continue;
+      pos = i;
+    }
+  }
+  Assert(pos != -1, "getOp error!");
+  return pos;
+}
+
+static word_t eval(int p, int q) {
+  if (p > q) {
+    Assert(0, "parse error, p > q!");
+  }
+
+  if (p == q) {
+    switch (tokens[p].type) {
+      case TK_DECNUM: 
+      case TK_HEXNUM: return strtoull(tokens[p].str,NULL,0);
+      case TK_REG: 
+      default: Assert(0, "single token error!");
+    }
+  } else if (check_parentheses(p, q) == true) {
+    // surround by (...)
+    return eval(p+1, q-1);
+  } else {
+    int op = getOp(p, q);//the position of 主运算符 in the token expression;
+    uint64_t val1 = eval(p, op - 1);
+    uint64_t val2 = eval(op + 1, q);
+
+    switch (tokens[op].type) {
+      case '+': return val1 + val2;
+      case '-': return val1 - val2;
+      case '*': return val1 * val2;
+      case '/': return val1 / val2;
+      default: Assert(0, "op error!");
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
-
+  
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
+  return eval(0, nr_token-1);
 }
