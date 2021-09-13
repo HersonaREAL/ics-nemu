@@ -133,7 +133,7 @@ static bool make_token(char *e) {
 
 static bool check_parentheses(int p, int q) {
   printf("p: %d, q: %d\n",p,q);
-  Assert(p > q, "check_parentheses error!");
+  Assert(p < q, "check_parentheses error!");
   if (tokens[p].type != '(') {
     return false;
   }
@@ -151,7 +151,7 @@ static bool check_parentheses(int p, int q) {
 }
 
 static int getOp(int p, int q) {
-  Assert(p > q, "getOp error, p > q!");
+  Assert(p < q, "getOp error, p > q!");
   int pos = -1;
   for (int i = p ; i < q && tokens[i].type != '(' ; ++i) {
     if (tokens[i].type == '+' || tokens[i].type == '-') {
