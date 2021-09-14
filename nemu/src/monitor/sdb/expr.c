@@ -107,6 +107,7 @@ static bool make_token(char *e) {
               Assert(0,"token length larger than 32!");
             }
             tokens[nr_token].type = rules[i].token_type;
+            memset(tokens[nr_token].str,0,32);
             strncpy(tokens[nr_token].str,substr_start,substr_len);
             nr_token++;
           }
