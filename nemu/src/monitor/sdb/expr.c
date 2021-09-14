@@ -152,6 +152,25 @@ static bool check_parentheses(int p, int q) {
 static int getOp(int p, int q) {
   Assert(p < q, "getOp error, p > q!");
   int pos = -1;
+
+  //scan from tail
+  for (int i = q; i >= p && tokens[i].type != ')'; --i) {
+    if (tokens[i].type == '+' || tokens[i].type == '-') {
+      pos = i;
+      break;
+    }
+
+    if (tokens[i].type == '*' || tokens[i].type == '/') {
+      if (pos == -1)
+        pos = i;
+    }
+  }
+
+  if (tokens[pos].type == '+' || tokens[pos].type == '-') {
+    return pos;
+  }
+
+  // scan from head
   for (int i = p ; i <= q && tokens[i].type != '(' ; ++i) {
     if (tokens[i].type == '+' || tokens[i].type == '-') {
       pos = i;
@@ -160,7 +179,8 @@ static int getOp(int p, int q) {
     if (tokens[i].type == '*' || tokens[i].type == '/') {
       if (tokens[pos].type == '+' || tokens[pos].type == '-') 
         continue;
-      pos = i;
+      if (pos < i)
+        pos = i;
     }
   }
   Assert(pos != -1, "getOp error! pos == -1,p: %d,q: %d",p,q);
