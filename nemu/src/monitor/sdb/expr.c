@@ -1,5 +1,6 @@
 #include "common.h"
 #include "debug.h"
+#include "memory/paddr.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -17,6 +18,7 @@ enum {
   TK_REG,
   TK_LE,
   TK_AND,
+  TK_DEF,
   /* TODO: Add more token types */
 
 };
@@ -191,6 +193,11 @@ static int getOp(int p, int q) {
     }
 
     if (tokens[i].type == '*' || tokens[i].type == '/') {
+      if (pos == -1 || tokens[i].type == TK_DEF)
+        pos = i;
+    }
+
+    if (tokens[i].type == TK_DEF) {
       if (pos == -1)
         pos = i;
     }
@@ -222,6 +229,25 @@ static word_t eval(int p, int q) {
     return eval(p+1, q-1);
   } else {
     int op = getOp(p, q);//the position of 主运算符 in the token expression;
+
+    if (tokens[op].type == TK_DEF) {
+      // check vaild
+      if (p + 1 == q) {
+        assert(tokens[q].type == TK_DECNUM || tokens[q].type == TK_HEXNUM || tokens[q].type == TK_REG);
+      } else {
+        assert(tokens[p+1].type == '(' && tokens[q].type == ')');
+        int i = p + 1, cnt = 1;
+        do {
+          ++i;
+        if(tokens[i].type == '(') ++cnt;
+        else if(tokens[i].type == ')') --cnt;
+        }while(i <= p && cnt != 0);
+        assert(i == q);
+      }
+
+      return paddr_read(eval(p+1, q), 4);
+    }
+
     uint64_t val1 = eval(p, op - 1);
     uint64_t val2 = eval(op + 1, q);
 
@@ -238,6 +264,14 @@ static word_t eval(int p, int q) {
   }
 }
 
+static bool beforeRefOp(int index ) {
+  return tokens[index].type == '+' || tokens[index].type == '-' ||
+         tokens[index].type == '*' || tokens[index].type == '/' ||
+         tokens[index].type == TK_AND || tokens[index].type == TK_EQ ||
+         tokens[index].type == TK_LE ||
+         tokens[index].type == '(';
+}
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
@@ -245,6 +279,11 @@ word_t expr(char *e, bool *success) {
   }
   
   /* TODO: Insert codes to evaluate the expression. */
+  for (int i = 0; i < nr_token; i ++) {
+  if (tokens[i].type == '*' && (i == 0 || beforeRefOp(i-1)) ) {
+    tokens[i].type = TK_DEF;
+  }
+}
   *success = true;
   return eval(0, nr_token-1);
 }

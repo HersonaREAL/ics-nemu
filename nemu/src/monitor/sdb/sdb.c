@@ -163,7 +163,7 @@ static int cmd_p(char *args) {
     return 0;
   }
 
-  printf("%s: %ld, 0x%lx\n",args,val,val);
+  printf("%s: %ld, 0x%08lx\n",args,val,val);
   return 0;
 }
 
