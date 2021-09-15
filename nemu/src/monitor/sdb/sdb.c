@@ -140,9 +140,10 @@ static int cmd_x(char *args) {
     printf("\033[31mn must be larger than 0!\033[0m\n");
   }
   
-  // just 0x
-  paddr_t addr =  strtoull(expr_str,NULL,16);
-  if (addr == 0) {
+  bool success = false;
+  paddr_t addr =  expr(expr_str,&success);
+
+  if (!success) {
     printf("\033[31merror addr!\033[0m\n");
     return 0;
   }
