@@ -157,13 +157,13 @@ static int cmd_x(char *args) {
 
 static int cmd_p(char *args) {
   bool res = false;
-  uint32_t val = expr(args,&res);
+  uint64_t val = expr(args,&res);
   if (!res) {
     printf("expr invaild!\n");
     return 0;
   }
 
-  printf("%s: %d\n",args,val);
+  printf("%s: %ld, 0x%lx\n",args,val,val);
   return 0;
 }
 

@@ -15,6 +15,8 @@ enum {
   TK_DECNUM,
   TK_HEXNUM,
   TK_REG,
+  TK_LE,
+  TK_AND,
   /* TODO: Add more token types */
 
 };
@@ -31,6 +33,8 @@ static struct rule {
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"==", TK_EQ},        // equal
+  {"<=", TK_LE},       //less and qual
+  {"&&", TK_AND},       // and
   {"-", '-'},           // sub
   {"\\*",'*'},          // mul
   {"\\/",'/'},          // chu
@@ -38,6 +42,7 @@ static struct rule {
   {"\\)", ')'},           // right bracket
   {"0x[[:xdigit:]]+", TK_HEXNUM},     // hex number
   {"[[:digit:]]+", TK_DECNUM},      // dec number
+  {"\\$[[:alnum:]]+",TK_REG} ,        //reg
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -99,8 +104,12 @@ static bool make_token(char *e) {
           case '*' : 
           case '/' : 
           case '(' : 
+          case TK_AND:
+          case TK_EQ:
+          case TK_LE:
           case ')' : tokens[nr_token++].type = rules[i].token_type; break;
 
+          case TK_REG:
           case TK_DECNUM : 
           case TK_HEXNUM : {
             if (substr_len > 32) {
@@ -149,6 +158,10 @@ static bool check_parentheses(int p, int q) {
   return lb_num == 0;
 }
 
+static bool isCpOp(int index) {
+  return tokens[index].type == TK_LE || tokens[index].type == TK_EQ || tokens[index].type == TK_AND;
+}
+
 static int getOp(int p, int q) {
   Assert(p < q, "getOp error, p > q!");
   int pos = -1;
@@ -167,9 +180,14 @@ static int getOp(int p, int q) {
       continue;
     }
 
-    if (tokens[i].type == '+' || tokens[i].type == '-') {
+    if (isCpOp(i)) {
       pos = i;
       break;
+    }
+
+    if (tokens[i].type == '+' || tokens[i].type == '-') {
+      if (pos == -1 || (tokens[i].type == '*' || tokens[i].type == '/'))
+        pos = i;
     }
 
     if (tokens[i].type == '*' || tokens[i].type == '/') {
@@ -187,12 +205,16 @@ static word_t eval(int p, int q) {
   if (p > q) {
     Assert(0, "parse error, p > q!");
   }
-
   if (p == q) {
+    bool success = false;
+    uint64_t res = 0;
     switch (tokens[p].type) {
       case TK_DECNUM: 
-      case TK_HEXNUM: return strtoul(tokens[p].str,NULL,0);
+      case TK_HEXNUM: return strtoull(tokens[p].str,NULL,0);
       case TK_REG: 
+        res =  isa_reg_str2val(tokens[p].str,&success);
+        Assert(success == true, "regs read fail! %s",tokens[p].str);
+        return res;
       default: Assert(0, "single token error!");
     }
   } else if (check_parentheses(p, q) == true) {
@@ -200,14 +222,17 @@ static word_t eval(int p, int q) {
     return eval(p+1, q-1);
   } else {
     int op = getOp(p, q);//the position of 主运算符 in the token expression;
-    uint32_t val1 = eval(p, op - 1);
-    uint32_t val2 = eval(op + 1, q);
+    uint64_t val1 = eval(p, op - 1);
+    uint64_t val2 = eval(op + 1, q);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
+      case TK_AND : return val1 && val2;
+      case TK_EQ  : return val1 == val2;
+      case TK_LE  : return val1 <= val2;
       default: Assert(0, "op error!");
     }
   }
