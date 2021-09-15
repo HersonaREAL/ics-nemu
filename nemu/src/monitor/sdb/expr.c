@@ -66,7 +66,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[65535] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -154,7 +154,19 @@ static int getOp(int p, int q) {
   int pos = -1;
 
   //scan from tail
-  for (int i = q; i >= p && tokens[i].type != ')'; --i) {
+  for (int i = q; i >= p ; --i) {
+
+    //skip ()
+    if (tokens[i].type == ')') {
+      int cnt = 1;
+      do {
+        --i;
+        if(tokens[i].type == ')') ++cnt;
+        else if(tokens[i].type == '(') --cnt;
+      }while (i >= p && cnt != 0);
+      continue;
+    }
+
     if (tokens[i].type == '+' || tokens[i].type == '-') {
       pos = i;
       break;
@@ -166,24 +178,8 @@ static int getOp(int p, int q) {
     }
   }
 
-  if (tokens[pos].type == '+' || tokens[pos].type == '-') {
-    return pos;
-  }
-
-  // scan from head
-  for (int i = p ; i <= q && tokens[i].type != '(' ; ++i) {
-    if (tokens[i].type == '+' || tokens[i].type == '-') {
-      pos = i;
-    }
-
-    if (tokens[i].type == '*' || tokens[i].type == '/') {
-      if (tokens[pos].type == '+' || tokens[pos].type == '-') 
-        continue;
-      if (pos < i)
-        pos = i;
-    }
-  }
-  Assert(pos != -1, "getOp error! pos == -1,p: %d,q: %d",p,q);
+ Assert(pos != -1, "getOp error! pos == -1,p: %d,q: %d,tokens[p].type: %c, tokens[p].str: %s,tokens[q].type: %c, tokens[q].str: %s",
+        p,q,tokens[p].type,tokens[p].str,tokens[q].type,tokens[q].str);
   return pos;
 }
 
@@ -195,7 +191,7 @@ static word_t eval(int p, int q) {
   if (p == q) {
     switch (tokens[p].type) {
       case TK_DECNUM: 
-      case TK_HEXNUM: return strtoull(tokens[p].str,NULL,0);
+      case TK_HEXNUM: return strtoul(tokens[p].str,NULL,0);
       case TK_REG: 
       default: Assert(0, "single token error!");
     }
@@ -204,8 +200,8 @@ static word_t eval(int p, int q) {
     return eval(p+1, q-1);
   } else {
     int op = getOp(p, q);//the position of 主运算符 in the token expression;
-    uint64_t val1 = eval(p, op - 1);
-    uint64_t val2 = eval(op + 1, q);
+    uint32_t val1 = eval(p, op - 1);
+    uint32_t val2 = eval(op + 1, q);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
