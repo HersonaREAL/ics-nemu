@@ -1,3 +1,4 @@
+#include "utils.h"
 #include <cpu/cpu.h>
 #include <cpu/exec.h>
 #include <cpu/difftest.h>
@@ -21,9 +22,11 @@ rtlreg_t tmp_reg[4];
 void device_update();
 
 #ifdef CONFIG_DEBUG
+bool debug_wp();
 static void debug_hook(vaddr_t pc, const char *asmbuf) {
   log_write("%s\n", asmbuf);
   if (g_print_step) { puts(asmbuf); }
+  if (debug_wp()) { nemu_state.state = NEMU_STOP; }
 }
 #endif
 

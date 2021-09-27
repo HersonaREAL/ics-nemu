@@ -13,9 +13,11 @@
 #include "utils.h"
 
 static int is_batch_mode = false;
-
 void init_regex();
 void init_wp_pool();
+WP* new_wp(char *args);
+void free_wp(int NO);
+void list_wp();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -121,6 +123,7 @@ static int cmd_info(char *args) {
     isa_reg_display();
   } else if (strcmp(str,"w") == 0) {
     // TODO print watch point
+    list_wp();
   } else {
     printf("\033[31merror args for info\033[0m\n");
   }
@@ -164,16 +167,33 @@ static int cmd_p(char *args) {
     return 0;
   }
 
-  printf("%s: %ld, 0x%08lx\n",args,val,val);
+  printf("%s: \033[32m%ld\033[0m, \033[33m0x%08lx\033[0m\n",args,val,val);
   return 0;
 }
 
 static int cmd_w(char *args) {
-  return -1;
+  WP *wp = new_wp(args);
+  if (!wp) {
+    printf("alloc watch point fail!\n");
+  }
+  printf("\033[32malloc watch point success!\n\033[33mNo: %d\033[0m, expr: %s\n",wp->NO, wp->expr_str);
+  return 0;
 }
 
 static int cmd_d(char *args) {
-  return -1;
+  char *n_str = strtok(NULL, " ");
+  if (n_str == NULL) {
+    return cmd_help(NULL);
+  }
+  int n = atoi(n_str);
+  if (n < 0 || n >= 32) {
+    printf("n error\n");
+    return 0;
+  }
+
+  free_wp(n);
+  
+  return 0;
 }
 
 void sdb_set_batch_mode() {
