@@ -2,12 +2,22 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <error.h>
+#include "common.h"
+#include "memory/paddr.h"
 #include "sdb.h"
+#include "utils.h"
 
 static int is_batch_mode = false;
-
 void init_regex();
 void init_wp_pool();
+WP* new_wp(char *args);
+void free_wp(int NO);
+void list_wp();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
 static char* rl_gets() {
@@ -34,10 +44,23 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+  nemu_state.state = NEMU_END;
   return -1;
 }
 
 static int cmd_help(char *args);
+
+static int cmd_si(char *args);
+
+static int cmd_info(char *args);
+
+static int cmd_x(char *args);
+
+static int cmd_p(char *args);
+
+static int cmd_w(char *args);
+
+static int cmd_d(char *args);
 
 static struct {
   const char *name;
@@ -47,9 +70,13 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-
   /* TODO: Add more commands */
-
+  { "si", "pc run n steps", cmd_si },
+  { "info", "r print info of reg, w print info of watch point", cmd_info},
+  { "x", "scan mem, x N expr", cmd_x },
+  { "p", "print value of expr", cmd_p },
+  { "w", "add watch point", cmd_w },
+  { "d", "delete watch point", cmd_d },
 };
 
 #define NR_CMD ARRLEN(cmd_table)
@@ -74,6 +101,98 @@ static int cmd_help(char *args) {
     }
     printf("Unknown command '%s'\n", arg);
   }
+  return 0;
+}
+
+static int cmd_si(char *args) {
+  char *n_str = strtok(NULL, " ");
+  int n = n_str == NULL ? 1 :  atoi(n_str);
+  if (n <= 0) {
+    printf("n must be larger than 0!\n");
+    return 0;
+  }
+
+  cpu_exec(n);
+  
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char *str = strtok(NULL, " ");
+  if (str == NULL || strcmp(str,"r") == 0) {
+    isa_reg_display();
+  } else if (strcmp(str,"w") == 0) {
+    // TODO print watch point
+    list_wp();
+  } else {
+    printf("\033[31merror args for info\033[0m\n");
+  }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char *n_str = strtok(NULL," ");
+  char *expr_str = strtok(NULL," ");
+  if (!n_str || !expr_str) {
+    printf("\033[31mplease input x n expr!\033[0m\n");
+    return 0;
+  }
+
+  int n = atoi(n_str);
+  if (n <= 0) {
+    printf("\033[31mn must be larger than 0!\033[0m\n");
+  }
+  
+  bool success = false;
+  paddr_t addr =  expr(expr_str,&success);
+
+  if (!success) {
+    printf("\033[31merror addr!\033[0m\n");
+    return 0;
+  }
+  printf("%s: ", expr_str);
+  for (int i = 0; i < n; ++i) {
+    word_t val =  paddr_read(addr + (i<<2), 4);
+    printf("0x%08lx\t",val);
+  }
+  printf("\n");
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  bool res = false;
+  uint64_t val = expr(args,&res);
+  if (!res) {
+    printf("expr invaild!\n");
+    return 0;
+  }
+
+  printf("%s: \033[32m%ld\033[0m, \033[33m0x%08lx\033[0m\n",args,val,val);
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  WP *wp = new_wp(args);
+  if (!wp) {
+    printf("alloc watch point fail!\n");
+  }
+  printf("\033[32malloc watch point success!\n\033[33mNo: %d\033[0m, expr: %s\n",wp->NO, wp->expr_str);
+  return 0;
+}
+
+static int cmd_d(char *args) {
+  char *n_str = strtok(NULL, " ");
+  if (n_str == NULL) {
+    return cmd_help(NULL);
+  }
+  int n = atoi(n_str);
+  if (n < 0 || n >= 32) {
+    printf("n error\n");
+    return 0;
+  }
+
+  free_wp(n);
+  
   return 0;
 }
 
