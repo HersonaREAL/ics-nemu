@@ -3,7 +3,7 @@
 
 #define INSTR_NULLARY(f) f(inv) f(nemu_trap)
 #define INSTR_UNARY(f)
-#define INSTR_BINARY(f) f(auipc)
-#define INSTR_TERNARY(f) f(ld) f(sd)
+#define INSTR_BINARY(f) f(auipc) f(jal)
+#define INSTR_TERNARY(f) f(ld) f(sd) f(addi) f(jalr)
 
 def_all_EXEC_ID();
