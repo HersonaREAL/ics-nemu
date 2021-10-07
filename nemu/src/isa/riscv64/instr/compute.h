@@ -120,3 +120,27 @@ def_EHelper(ori) {
 def_EHelper(andi) {
   rtl_andi(s, ddest, dsrc1, id_src2->imm);
 }
+
+def_EHelper(mulw) {
+  rtl_mulw(s, ddest, dsrc1, dsrc2);
+}
+
+def_EHelper(divw) {
+  rtl_divw(s, ddest, dsrc1, dsrc2);
+}
+
+def_EHelper(divuw) {
+  rtl_divuw(s, ddest, dsrc1, dsrc2);
+}
+
+def_EHelper(remw) {
+  rtl_remw(s, ddest, dsrc1, dsrc2);
+}
+
+def_EHelper(remuw) {
+  rtl_remuw(s, ddest, dsrc1, dsrc2);
+}
+
+def_EHelper(mul) {
+  rtl_mulu_lo(s, ddest, dsrc1, dsrc2);
+}
