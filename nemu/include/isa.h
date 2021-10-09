@@ -45,4 +45,8 @@ void isa_difftest_attach();
 void isa_difftest_regcpy(void *dut, bool direction);
 void isa_difftest_raise_intr(word_t NO);
 
+//for iringbuf
+void isa_record_recent_inst();
+void isa_show_recent_inst();
+
 #endif

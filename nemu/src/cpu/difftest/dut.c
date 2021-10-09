@@ -81,6 +81,7 @@ static void checkregs(CPU_state *ref, vaddr_t pc) {
     nemu_state.state = NEMU_ABORT;
     nemu_state.halt_pc = pc;
     isa_reg_display();
+    isa_isa_show_recent_inst();
   }
 }
 

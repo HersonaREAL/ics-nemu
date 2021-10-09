@@ -1,3 +1,4 @@
+#include "isa.h"
 #include "utils.h"
 #include <cpu/cpu.h>
 #include <cpu/exec.h>
@@ -58,6 +59,7 @@ static void statistic() {
 
 void assert_fail_msg() {
   isa_reg_display();
+  isa_show_recent_inst();
   statistic();
 }
 
@@ -68,6 +70,7 @@ void fetch_decode(Decode *s, vaddr_t pc) {
   s->dnpc = s->snpc;
   s->EHelper = g_exec_table[idx];
 #ifdef CONFIG_ITRACE
+  isa_record_recent_inst(s);
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
