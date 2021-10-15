@@ -21,9 +21,12 @@ static inline def_DopHelper(i) {
   op->imm = val;
 }
 
+static word_t zero_null = 0;
+word_t *zeroNull() {
+  return &zero_null;
+}
 static inline def_DopHelper(r) {
   bool is_write = flag;
-  static word_t zero_null = 0;
   op->preg = (is_write && val == 0) ? &zero_null : &gpr(val);
 }
 

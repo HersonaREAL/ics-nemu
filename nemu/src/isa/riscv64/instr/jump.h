@@ -1,16 +1,42 @@
 #include "cpu/decode.h"
 #include "debug.h"
+#include "ftrace.h"
 #include "rtl-basic.h"
 #include "rtl/rtl.h"
 #include <stdio.h>
+
+word_t *zeroNull();
+
 def_EHelper(jal) {
   rtl_j(s, id_src1->imm + s->pc);
   *ddest = s->snpc;
+
+  //ftrace
+  #ifdef CONFIG_FTRACE
+  if (isFtraceEnable()) {
+    if (ddest == &gpr(1)) {
+      return printJmpInfo(id_src1->imm + s->pc, true);
+    }
+  }
+  #endif
 }
 
 def_EHelper(jalr) {
   rtl_j(s, *dsrc1 + id_src2->imm );
   *ddest = s->snpc;
+
+  //ftrace
+  #ifdef CONFIG_FTRACE
+  if (isFtraceEnable()) {
+    if (ddest == zeroNull() && dsrc1 == &gpr(1) && id_src2->imm == 0) {
+      return printJmpInfo(*dsrc1 + id_src2->imm, false);
+    }
+
+    if ((ddest == zeroNull()||ddest == &gpr(1)) && dsrc1 == &gpr(6)) {
+      return printJmpInfo(*dsrc1 + id_src2->imm, true);
+    }
+  }
+  #endif
 }
 
 def_EHelper(beq) {
