@@ -140,7 +140,10 @@ void printJmpInfo(uint64_t addr, bool isCall) {
 
     for (int i = 0; i < ftSize; ++i) {
         if (addr >= ft[i].value && addr < ft[i].value + ft[i].size) {
-            p += snprintf(p, sizeof(buf) - (p - buf), "[\033[32m%s\033[0m @0x%016lx]\n", ft[i].func_name,addr);
+            if (isCall)
+                p += snprintf(p, sizeof(buf) - (p - buf), "[\033[32m%s\033[0m @0x%016lx]\n", ft[i].func_name,addr);
+            else
+                p += snprintf(p, sizeof(buf) - (p - buf), "[\033[32m%s\033[0m]\n", ft[i].func_name);
             printf("%s",buf);
             return;
         }

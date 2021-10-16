@@ -29,10 +29,15 @@ def_EHelper(jalr) {
   #ifdef CONFIG_FTRACE
   if (isFtraceEnable()) {
     if (ddest == zeroNull() && dsrc1 == &gpr(1) && id_src2->imm == 0) {
-      return printJmpInfo(*dsrc1 + id_src2->imm, false);
+      return printJmpInfo(cpu.pc, false);
     }
 
-    if ((ddest == zeroNull()||ddest == &gpr(1)) && dsrc1 == &gpr(6)) {
+    // tail
+    // if (ddest == zeroNull() && dsrc1 == &gpr(6)) {
+    //   return printJmpInfo(*dsrc1 + id_src2->imm, true);
+    // }
+
+    if (ddest == &gpr(1)) {
       return printJmpInfo(*dsrc1 + id_src2->imm, true);
     }
   }
