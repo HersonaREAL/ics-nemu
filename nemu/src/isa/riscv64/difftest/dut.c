@@ -89,7 +89,13 @@ void isa_show_recent_inst() {
 
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  return false;
+  if (ref_r->pc != cpu.pc)
+    return false;
+  for (size_t i = 0; i < 32; ++i) {
+    if (ref_r->gpr[i]._64 != cpu.gpr[i]._64)
+      return false;
+  }
+  return true;
 }
 
 void isa_difftest_attach() {
