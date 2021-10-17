@@ -34,13 +34,16 @@ static char* itoa(int value, char *str, int radix) {
 
 int printf(const char *fmt, ...) {
   char buf[4096];
-  int ret;
+  int ret,i;
   va_list vargs;
   va_start(vargs, fmt);
 
   ret = vsprintf(buf, fmt, vargs);
   //TODO PUT BUF TO IO
-  
+  for(i = 0; i < ret; ++i) {
+    
+  }
+
   va_end(vargs);
   
   return ret;
@@ -87,11 +90,46 @@ int sprintf(char *out, const char *fmt, ...) {
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  panic("Not implemented");
+  int ret;
+  va_list vargs;
+  va_start(vargs, fmt);
+
+  ret = vsnprintf(out, n,fmt, vargs);
+
+  va_end(vargs);
+  
+  return ret;
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  panic("Not implemented");
+  char *p;
+  size_t i;
+
+  for (p = out,i = 0; *fmt != '\0' && i < n - 1; ++fmt) {
+    if (*fmt != '%') {
+      *(p++) = *fmt;
+      continue;
+    }
+
+    //skip %
+    fmt++;
+    switch (*fmt) {
+      case 'd': 
+        itoa(va_arg(ap,int), p, 10);
+        p += strlen(p);
+        break;
+      case 's':
+        strcat(p, va_arg(ap, char*));
+        p += strlen(p);
+        break;
+      default:
+        panic("Arg not implemented");
+    }
+
+    ++i;
+  }
+  *p = '\0';
+  return p - out;
 }
 
 #endif
