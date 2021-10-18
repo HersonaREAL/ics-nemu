@@ -187,7 +187,7 @@ int vsprintf(char* buff, const char* format, va_list args)
                 precision = len;
             else if (len > precision)
                 len = precision;
-            if (!(flags & LEFT))
+            if ((flags & LEFT))
             {
                 while (--field_width)
                     *str++ = ' ';
@@ -370,7 +370,7 @@ int vsnprintf(char *buff, size_t n, const char *format, va_list args) {
                 precision = len;
             else if (len > precision)
                 len = precision;
-            if (!(flags & LEFT))
+            if ((flags & LEFT))
             {
                 while (--field_width)
                     *str++ = ' ';
