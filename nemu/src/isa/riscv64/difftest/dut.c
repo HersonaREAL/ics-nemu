@@ -32,10 +32,11 @@ static void genInstInfo(struct ExecInfo *inst) {
     }
 
     p += sprintf(p,"        ");
-
+    #ifdef CONFIG_ITRACE
     void disassemble(char *str,int size, uint64_t pc, uint8_t *code, int nbyte);
     disassemble(p,logbuf + sizeof(logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, inst_ringbuf[i].snpc, inst->pc), (uint8_t *)&inst->isa.instr.val, ilen);
+    #endif
 }
 
 
