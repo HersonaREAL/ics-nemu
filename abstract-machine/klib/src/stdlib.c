@@ -3,7 +3,9 @@
 #include <klib-macros.h>
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
+#define ROUNDUP(a, sz)      ((((uintptr_t)a) + (sz) - 1) & ~((sz) - 1))
 static unsigned long int next = 1;
+extern char _heap_start;
 
 int rand(void) {
   // RAND_MAX assumed to be 32767
@@ -30,7 +32,12 @@ int atoi(const char* nptr) {
 }
 
 void *malloc(size_t size) {
-  panic("Not implemented");
+  static char *lastAddr = &_heap_start;
+  size  = (size_t)ROUNDUP(size, 8);
+  char *old = lastAddr;
+
+  lastAddr += size;
+  return old;
 }
 
 void free(void *ptr) {
