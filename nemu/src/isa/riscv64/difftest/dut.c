@@ -92,6 +92,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (ref_r->pc != cpu.pc)
     return false;
   for (size_t i = 0; i < 32; ++i) {
+    //printf("ref reg[%ld]: %lx, dut reg[%ld]: %lx\n",i,ref_r->gpr[i]._64,i,cpu.gpr[i]._64);
     if (ref_r->gpr[i]._64 != cpu.gpr[i]._64)
       return false;
   }
