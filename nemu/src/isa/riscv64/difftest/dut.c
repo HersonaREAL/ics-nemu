@@ -15,6 +15,8 @@ struct ExecInfo {
   ISADecodeInfo isa;
 };
 
+extern const char *regs[];
+
 static struct ExecInfo inst_ringbuf[BUFFSIZE];
 static size_t start = 0, end = 0;
 static char logbuf[128];
@@ -90,14 +92,19 @@ void isa_show_recent_inst() {
 
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  if (ref_r->pc != cpu.pc)
+  if (ref_r->pc != cpu.pc) {
+    printf("\033[33minvalid pc!\033[0m dut pc: 0x%016lx, ref pc: 0x%016lx\n",cpu.pc, ref_r->pc);
     return false;
+  }
+  bool success = true;
   for (size_t i = 0; i < 32; ++i) {
     //printf("ref reg[%ld]: %lx, dut reg[%ld]: %lx\n",i,ref_r->gpr[i]._64,i,cpu.gpr[i]._64);
-    if (ref_r->gpr[i]._64 != cpu.gpr[i]._64)
-      return false;
+    if (ref_r->gpr[i]._64 != cpu.gpr[i]._64) {
+      success = false;
+      printf("\033[33minvalid reg!\033[0m dut %s: 0x%016lx, ref %s: 0x%016lx\n",regs[i],cpu.gpr[i]._64,regs[i],ref_r->gpr[i]._64 );
+    }
   }
-  return true;
+  return success;
 }
 
 void isa_difftest_attach() {

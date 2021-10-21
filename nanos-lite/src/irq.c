@@ -1,7 +1,13 @@
+#include "debug.h"
 #include <common.h>
+#include <stdio.h>
 
 static Context* do_event(Event e, Context* c) {
   switch (e.event) {
+    case EVENT_YIELD: 
+        printf("YYYYYYYYYYYYYYYYYYYYYYYYYIELD!!!!!!!!!!!!!\n"); 
+        c->mepc += 4; 
+        break;
     default: panic("Unhandled event ID = %d", e.event);
   }
 

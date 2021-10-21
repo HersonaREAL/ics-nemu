@@ -8,8 +8,11 @@ typedef struct {
   union {
     uint64_t _64;
   } gpr[32];
-
   vaddr_t pc;
+  uint64_t mtvec;
+  uint64_t mepc;
+  uint64_t mstatus;
+  uint64_t mcause;
 } riscv64_CPU_state;
 
 // decode

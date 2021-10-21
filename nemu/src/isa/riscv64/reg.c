@@ -15,12 +15,15 @@ void isa_reg_display() {
   for (int i = 0; i < reg_cnt; ++i) {
     uint64_t reg_val = gpr(i);
     if (i%2 == 0 ) {
-      printf("\033[31m%s\033[0m: 0x%lx, %ld\t",regs[i], reg_val,reg_val);
+      printf("\033[31m%s\033[0m: 0x%016lx, %016ld\t",regs[i], reg_val,reg_val);
     } else {
-      printf("\033[31m%s\033[0m: 0x%lx, %ld\n",regs[i],reg_val,reg_val);
+      printf("\033[31m%s\033[0m: 0x%016lx, %016ld\n",regs[i],reg_val,reg_val);
     }
   }
-  printf("\033[31mpc\033[0m: 0x%lx\n",cpu.pc);
+  printf("\033[31mpc\033[0m: 0x%016lx, %016ld\n",cpu.pc,cpu.pc);
+  printf("\033[31mmcause\033[0m: 0x%016lx, %016ld\n",cpu.mcause,cpu.mcause);
+  printf("\033[31mmstatus\033[0m: 0x%016lx, %016ld\n",cpu.mstatus,cpu.mstatus);
+  printf("\033[31mmepc\033[0m: 0x%016lx, %016ld\n",cpu.mepc,cpu.mepc);
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

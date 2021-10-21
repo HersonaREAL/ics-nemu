@@ -17,6 +17,9 @@ static void restart() {
 
   /* The zero register is always 0. */
   cpu.gpr[0]._64 = 0;
+
+  //for diff step
+  cpu.mstatus = 0xa00001800;
 }
 
 void init_isa() {
