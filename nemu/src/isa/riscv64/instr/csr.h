@@ -41,7 +41,7 @@ def_EHelper(csrrs) {
 }
 
 def_EHelper(ecall) {
-    vaddr_t npc = isa_raise_intr(ECALL_NO, cpu.pc);
+    vaddr_t npc = isa_raise_intr(0, cpu.pc);
     rtl_j(s, npc);
 }
 
@@ -51,6 +51,6 @@ def_EHelper(mret) {
     CSRs[mstatus].MPIE 为 1;并且，如果支持用户模式，则将 CSR [mstatus].MPP 设置为 0。
     */
     rtl_jr(s,&cpu.mepc);
-    cpu.mstatus |= (cpu.mstatus >> 4) & 0x8; //CSRs[mstatus].MIE 置成 CSRs[mstatus].MPIE
-    cpu.mstatus |= 0x80;//并且将CSRs[mstatus].MPIE 为 1
+    //cpu.mstatus |= (cpu.mstatus >> 4) & 0x8; //CSRs[mstatus].MIE 置成 CSRs[mstatus].MPIE
+    //cpu.mstatus |= 0x80;//并且将CSRs[mstatus].MPIE 为 1
 }
