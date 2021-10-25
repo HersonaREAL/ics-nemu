@@ -1,5 +1,6 @@
 #include <proc.h>
 #include <elf.h>
+#include <fs.h>
 #include <common.h>
 
 #ifdef __LP64__
@@ -17,19 +18,24 @@ size_t get_ramdisk_size();
 static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Ehdr header;
   Elf_Phdr seg;
-  int ret, n;
+  int ret, n, fd;
+
+  //open file
+  fd = fs_open(filename, 0, 0);
 
   // check header
-  ret = ramdisk_read(&header, 0, sizeof(Elf_Ehdr));
+  ret = fs_read(fd, &header, sizeof(Elf_Ehdr));
   assert(ret == sizeof(Elf_Ehdr));
   assert(memcmp(header.e_ident,ELFMAG,SELFMAG) == 0);
   
   //read seg
   n = header.e_phnum;
   for (int i = 0; i < n; ++i) {
-    ramdisk_read(&seg, header.e_phoff + i * sizeof(Elf_Phdr), sizeof(Elf_Phdr));
+    fs_lseek(fd, header.e_phoff + i * sizeof(Elf_Phdr), SEEK_SET);
+    fs_read(fd, &seg, sizeof(Elf_Phdr));
     if (seg.p_type == PT_LOAD) {
-      ramdisk_read((void *)seg.p_vaddr, seg.p_offset, seg.p_memsz);
+      fs_lseek(fd, seg.p_offset, SEEK_SET);
+      fs_read(fd,(void *)seg.p_vaddr, seg.p_memsz);
       memset((char *)(seg.p_vaddr + seg.p_filesz),0,seg.p_memsz - seg.p_filesz);
     }
   }
