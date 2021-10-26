@@ -42,6 +42,8 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     *(p++) = kn[i];
   }
 
+  if (p - s < len - 1) *(p++) = '\n';
+
   *p = '\0';
   return p - s;
 }
