@@ -27,6 +27,17 @@ char *sys_str[] = {  "SYS_exit",
   "SYS_gettimeofday"};
 #endif
 
+struct timeval {
+  long tv_sec;     /* seconds */
+  long tv_usec;    /* microseconds */
+};
+
+struct timezone {
+  int tz_minuteswest;     /* minutes west of Greenwich */
+  int tz_dsttime;         /* type of DST correction */
+};
+
+
 uintptr_t sys_write(int fd, void *buf, size_t count) {
   #if config_strace
   printf("\033[33mstrace:\033[0m sys_write, file name: %s\n",fs_filename(fd));
@@ -66,6 +77,18 @@ uintptr_t sys_brk(void *pb) {
   return 0;
 }
 
+uintptr_t sys_gettimeofday(struct timeval *tv, struct timezone *tz) {
+  long us = io_read(AM_TIMER_UPTIME).us;
+  if (us >= 1000000) {
+    tv->tv_sec = us / 1000000;
+    tv->tv_usec = us % 1000000;
+  } else {
+    tv->tv_sec = 0;
+    tv->tv_usec = us;
+  }
+  return 0;
+}
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -99,6 +122,9 @@ void do_syscall(Context *c) {
               break;
     case SYS_close:
               c->GPRx = sys_close(c->GPR2);
+              break;
+    case SYS_gettimeofday:
+              c->GPRx = sys_gettimeofday((struct timeval*)c->GPR2, (struct timezone *)c->GPR3);
               break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }

@@ -19,6 +19,7 @@ enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t get_ramdisk_size();
+size_t serial_write(const void *buf, size_t offset, size_t len);
 
 size_t invalid_read(void *buf, size_t offset, size_t len) {
   panic("should not reach here");
@@ -33,8 +34,8 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, invalid_write},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, invalid_write},
+  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
+  [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
 #include "files.h"
 };
 
@@ -56,11 +57,14 @@ int fs_open(const char *pathname, int flags, int mode) {
 size_t fs_read(int fd, void *buf, size_t len) {
   Finfo *f = &file_table[fd];
   size_t ret;
-  if (fd <= 2) {
-    return 0;
+
+
+  if (f->read) {
+    ret = f->read(buf,f->open_offset,len);
+  } else {
+    ret = ramdisk_read(buf, f->open_offset, len);
   }
 
-  ret = ramdisk_read(buf, f->open_offset, len);
   f->open_offset += ret;
   return ret;
 }
@@ -69,21 +73,14 @@ size_t fs_write(int fd, const void *buf, size_t len) {
   Finfo *f = &file_table[fd];
   size_t ret;
 
-  if (fd == FD_STDIN) {
-    return 0;
-  }
-
   // stdout stderr
-  if (fd == FD_STDOUT || fd == FD_STDERR) {
-    char *p = (char *)buf;
-    for (size_t i = 0; i < len; ++i) {
-      putch(p[i]);
-    }
-    return len;
+  if (f->write) {
+    ret = f->write(buf,f->open_offset,len);
+  } else {
+    // normal file
+    ret = ramdisk_write(buf, f->open_offset, len);
   }
 
-  // normal file
-  ret = ramdisk_write(buf, f->open_offset, len);
   f->open_offset += ret;
   return ret;
 }
