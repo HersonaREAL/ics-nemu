@@ -1,6 +1,8 @@
 #include <NDL.h>
 #include <sdl-video.h>
 #include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -10,9 +12,21 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+  printf("SDL_FillRect not imp");
+  assert(0);
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  // lock
+  //printf("x: %d, y: %d, w: %d, h: %d, s->pitch: %d\n",x,y,w,h,s->pitch);
+  if (x == 0 && y == 0 && w == 0 && h == 0) 
+    return NDL_DrawRect((uint32_t *)s->pixels,0,0,0,0);
+
+  // not sure
+  for (int i = 0; i < h; ++i) {
+    NDL_DrawRect((uint32_t *)(s->pixels + (y + i) * s->pitch + x * 4), x, y + i, w, 1);
+  }
+  
 }
 
 // APIs below are already implemented.
@@ -193,8 +207,12 @@ uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint
 }
 
 int SDL_LockSurface(SDL_Surface *s) {
+  printf("SDL_LockSurface not imp");
+  assert(0);
   return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *s) {
+  printf("SDL_UnlockSurface not imp");
+  assert(0);
 }

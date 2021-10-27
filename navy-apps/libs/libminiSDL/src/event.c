@@ -1,7 +1,9 @@
 #include <NDL.h>
 #include <SDL.h>
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #define keyname(k) #k,
 
@@ -23,7 +25,23 @@ int SDL_PollEvent(SDL_Event *ev) {
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
-  printf("SDL_WaitEvent not imp!\n");
+  char buf[64];
+  while (!NDL_PollEvent(buf, sizeof(buf)));
+  assert(buf[0] == 'k');
+  if (buf[1] == 'u')  event->type = SDL_KEYUP;
+  else if(buf[1] == 'd') event->type = SDL_KEYDOWN;
+  else assert(0);
+  
+  char *p = buf + 3;
+  char *s = p;
+  while(*s != '\n') ++s;
+  *s = '\0';
+  for (uint8_t i = 0;i < sizeof(keyname)/sizeof(char *);++i) {
+    if (strcmp(p, keyname[i]) == 0) {
+      event->key.keysym.sym = i;
+      return 1;
+    }
+  }
   assert(0);
   return 1;
 }
