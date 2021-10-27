@@ -56,10 +56,15 @@ void NDL_OpenCanvas(int *w, int *h) {
     char *p = disinfo;
     p = parseWH(p,&max_w);
     p = parseWH(p,&max_h);
+    if (max_w <= 0) max_w = 400;
+    if (max_h <= 0) max_h = 300;
 
     screen_w = *w > max_w || *w == 0 ? max_w : *w;
     screen_h = *h > max_h || *h == 0 ? max_h : *h;
-
+    printf("*w > max_w = %d\n",*w > max_w);
+    printf("w: %d,h: %d\n",*w,*h);
+    printf("max_w: %d,max_h: %d\n",max_w,max_h);
+    printf("screen_w: %d,screen_h: %d\n",screen_w,screen_h);
     //居中
     x_cor_val = (max_w - screen_w) / 2;
     y_cor_val = (max_h - screen_h) / 2;
