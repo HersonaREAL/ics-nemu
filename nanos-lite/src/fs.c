@@ -21,6 +21,8 @@ size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t get_ramdisk_size();
 size_t serial_write(const void *buf, size_t offset, size_t len);
 size_t events_read(void *buf, size_t offset, size_t len);
+size_t dispinfo_read(void *buf, size_t offset, size_t len);
+size_t fb_write(const void *buf, size_t offset, size_t len);
 
 size_t invalid_read(void *buf, size_t offset, size_t len) {
   panic("should not reach here");
@@ -37,12 +39,17 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
   [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
   [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
+  [FD_FB]     = {"/dev/fb", 0, 0, invalid_read, fb_write},
 #include "files.h"
-  {"/dev/events", 0, 0, events_read, serial_write}
+  {"/dev/events", 0, 0, events_read, serial_write},
+  {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
 };
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
+    int w = io_read(AM_GPU_CONFIG).width;
+    int h = io_read(AM_GPU_CONFIG).height;
+    file_table[FD_FB].size = w * h * 4;
 }
 
 int fs_open(const char *pathname, int flags, int mode) {
@@ -50,6 +57,7 @@ int fs_open(const char *pathname, int flags, int mode) {
   for (int i = 0; i < n; ++i) {
     if (strcmp(pathname, file_table[i].name) == 0) {
       file_table[i].open_offset = file_table[i].disk_offset;
+      //printf("open_offset: %d\n",file_table[i].open_offset);
       return i;
     }
   }
@@ -60,6 +68,9 @@ size_t fs_read(int fd, void *buf, size_t len) {
   Finfo *f = &file_table[fd];
   size_t ret;
 
+  if (f->size != 0 && f->open_offset - f->disk_offset + len > f->size) {
+    len = f->size - (f->open_offset - f->disk_offset);
+  }
 
   if (f->read) {
     ret = f->read(buf,f->open_offset,len);
@@ -74,6 +85,10 @@ size_t fs_read(int fd, void *buf, size_t len) {
 size_t fs_write(int fd, const void *buf, size_t len) {
   Finfo *f = &file_table[fd];
   size_t ret;
+
+  if (f->size != 0 && f->open_offset - f->disk_offset + len > f->size) {
+    len = f->size - (f->open_offset - f->disk_offset);
+  }
 
   // stdout stderr
   if (f->write) {
@@ -96,15 +111,15 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
 
   switch (whence) {
     case SEEK_SET :
-      if (f->open_offset + offset > rsz || offset < 0) return -1;
+      if (f->disk_offset + offset > rsz || offset < 0) panic("SEEK_SET,f->open_offset + offset: %lu, rsz: %lu",f->disk_offset + offset, rsz);
       f->open_offset = f->disk_offset + offset;
       break;
     case SEEK_CUR :
-      if (f->open_offset + offset > rsz || f->open_offset + offset < f->disk_offset) return -1;
+      if (f->open_offset + offset > rsz || f->open_offset + offset < f->disk_offset) panic("SEEK_CUR");
       f->open_offset += offset;
       break;
     case SEEK_END :
-      if (f->open_offset + offset > rsz || f->open_offset + offset < f->disk_offset) return -1;
+      if (f->open_offset + offset > rsz || f->open_offset + offset < f->disk_offset) panic("SEEK_END");
       f->open_offset = f->disk_offset + f->size + offset;
       break;
     default: panic("fs_lseek!");

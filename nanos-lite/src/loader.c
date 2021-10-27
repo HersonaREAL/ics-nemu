@@ -27,19 +27,20 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   ret = fs_read(fd, &header, sizeof(Elf_Ehdr));
   assert(ret == sizeof(Elf_Ehdr));
   assert(memcmp(header.e_ident,ELFMAG,SELFMAG) == 0);
-  
+
   //read seg
   n = header.e_phnum;
+  // printf("n: %d\n",n);
   for (int i = 0; i < n; ++i) {
     fs_lseek(fd, header.e_phoff + i * sizeof(Elf_Phdr), SEEK_SET);
     fs_read(fd, &seg, sizeof(Elf_Phdr));
     if (seg.p_type == PT_LOAD) {
+      //printf("p_offset: 0xd, p_vaddr: 0x%016lx, p_memsz: %lu, p_filesz: %lu\n",seg.p_offset,seg.p_vaddr,seg.p_memsz,seg.p_filesz);
       fs_lseek(fd, seg.p_offset, SEEK_SET);
       fs_read(fd,(void *)seg.p_vaddr, seg.p_memsz);
       memset((char *)(seg.p_vaddr + seg.p_filesz),0,seg.p_memsz - seg.p_filesz);
     }
   }
-
   return header.e_entry;
 }
 

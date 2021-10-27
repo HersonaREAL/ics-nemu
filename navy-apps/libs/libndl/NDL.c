@@ -8,7 +8,18 @@
 
 static int evtdev = -1;
 static int fbdev = -1;
-static int screen_w = 0, screen_h = 0;
+static int screen_w = 0, screen_h = 0, max_w = 0, max_h = 0;
+static int x_cor_val = 0, y_cor_val = 0;
+
+static char *parseWH(char *buf, int *res) {
+  *res = 0;
+  while(*(buf++) != ':');
+  while (*buf != '\n') {
+    *res = *res * 10 + (*buf - '0');
+    ++buf;
+  }
+  return buf;
+}
 
 uint32_t NDL_GetTicks() {
   struct timeval tv;
@@ -37,10 +48,33 @@ void NDL_OpenCanvas(int *w, int *h) {
       if (strcmp(buf, "mmap ok") == 0) break;
     }
     close(fbctl);
+  } else {
+    //get screen w h
+    char disinfo[4096];
+    int dpfd = open("/proc/dispinfo",0,0);
+    read(dpfd, disinfo, sizeof(disinfo));
+    char *p = disinfo;
+    p = parseWH(p,&max_w);
+    p = parseWH(p,&max_h);
+
+    screen_w = *w > max_w || *w == 0 ? max_w : *w;
+    screen_h = *h > max_h || *h == 0 ? max_h : *h;
+
+    //居中
+    x_cor_val = (max_w - screen_w) / 2;
+    y_cor_val = (max_h - screen_h) / 2;
+
+    fbdev = open("/dev/fb", 0, 0);    
   }
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
+  size_t offset = 0;
+  offset = ((y + y_cor_val) * max_w + x + x_cor_val) * 4;
+  for (int i = 0; i < h; ++i) {
+    lseek(fbdev, offset + i * max_w * 4, SEEK_SET);
+    pixels += write(fbdev, pixels, w * 4) / 4;
+  }
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
@@ -63,7 +97,6 @@ int NDL_Init(uint32_t flags) {
   } else {
     evtdev = open("/dev/events",0,0);
   }
-
   return 0;
 }
 

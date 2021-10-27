@@ -40,28 +40,28 @@ struct timezone {
 
 uintptr_t sys_write(int fd, void *buf, size_t count) {
   #if config_strace
-  printf("\033[33mstrace:\033[0m sys_write, file name: %s\n",fs_filename(fd));
+  printf("\033[33mstrace:\033[0m sys_write, file name: %s, len: %d\n",fs_filename(fd),count);
   #endif
   return fs_write(fd, buf, count);
 }
 
 uintptr_t sys_read(int fd, void *buf, size_t len) {
   #if config_strace
-  printf("\033[33mstrace:\033[0m sys_read, file name: %s\n",fs_filename(fd));
+  printf("\033[33mstrace:\033[0m sys_read, file name: %s, len: %d\n",fs_filename(fd),len);
   #endif
   return fs_read(fd, buf, len);
 }
 
 uintptr_t sys_open(const char *pathname, int flags, int mode) {
   #if config_strace
-  printf("\033[33mstrace:\033[0m sys_open, file name: %s\n",fs_filename(fd));
+  printf("\033[33mstrace:\033[0m sys_open, file name: %s\n",pathname);
   #endif
   return fs_open(pathname, flags, mode);
 }
 
 uintptr_t sys_lseek(int fd, size_t offset, int whence) {
   #if config_strace
-  printf("\033[33mstrace:\033[0m sys_lseek, file name: %s\n",fs_filename(fd));
+  printf("\033[33mstrace:\033[0m sys_lseek, file name: %s, offset: %d, whence: %d\n",fs_filename(fd),offset,whence);
   #endif
   return fs_lseek(fd, offset, whence);
 }

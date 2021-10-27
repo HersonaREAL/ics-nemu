@@ -24,4 +24,6 @@ enum {
   SYS_gettimeofday
 };
 
+#define  config_strace 0
+
 #endif
