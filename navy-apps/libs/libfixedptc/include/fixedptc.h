@@ -125,37 +125,37 @@ typedef	__uint128_t fixedptud;
  * Putting them only in macros will effectively make them optional. */
 #define fixedpt_tofloat(T) ((float) ((T)*((float)(1)/(float)(1L << FIXEDPT_FBITS))))
 
-/* Multiplies a fixedpt number with an integer, returns the result. */
-static inline fixedpt fixedpt_muli(fixedpt A, int B) {
-	return 0;
-}
-
-/* Divides a fixedpt number with an integer, returns the result. */
-static inline fixedpt fixedpt_divi(fixedpt A, int B) {
-	return 0;
-}
-
 /* Multiplies two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_mul(fixedpt A, fixedpt B) {
-	return 0;
+	return (((fixedptd)A * (fixedptd)B) >> FIXEDPT_FBITS);
 }
 
 
 /* Divides two fixedpt numbers, returns the result. */
 static inline fixedpt fixedpt_div(fixedpt A, fixedpt B) {
-	return 0;
+	return (((fixedptd)A << FIXEDPT_FBITS) / (fixedptd)B);
+}
+
+/* Multiplies a fixedpt number with an integer, returns the result. */
+static inline fixedpt fixedpt_muli(fixedpt A, int B) {
+	return fixedpt_mul(A, fixedpt_fromint(B));
+}
+
+/* Divides a fixedpt number with an integer, returns the result. */
+static inline fixedpt fixedpt_divi(fixedpt A, int B) {
+	return fixedpt_div(A, fixedpt_fromint(B));
 }
 
 static inline fixedpt fixedpt_abs(fixedpt A) {
-	return 0;
+	return ((A) < 0 ? -(A) : (A));
 }
 
 static inline fixedpt fixedpt_floor(fixedpt A) {
-	return 0;
+	return fixedpt_fromint((fixedpt_toint(A)));
 }
 
 static inline fixedpt fixedpt_ceil(fixedpt A) {
-	return 0;
+	return (A & FIXEDPT_FMASK) ? fixedpt_fromint((fixedpt_toint(A) + 1)) : fixedpt_fromint((fixedpt_toint(A)));
 }
 
 /*
