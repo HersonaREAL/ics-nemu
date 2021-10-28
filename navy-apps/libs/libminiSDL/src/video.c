@@ -7,13 +7,78 @@
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
+  // printf("SDL_BlitSurface SDL_BlitSurface\n");
+  // printf("srcface w: %d, src h: %d, dstface w: %d, h: %d\n",src->w,src->h,dst->w,dst->h);
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+
+  int sw,sh,sx,sy,x,y;
+
+  // dst x, y
+  if (dstrect) {
+    // printf("dstrect->x: %d,dstrect->y: %d\n",dstrect->x,dstrect->y);
+    x = dstrect->x;
+    y = dstrect->y;
+  } else {
+    x = y = 0;
+  }
+
+  // incording to srcrect, get sw,sh, and sx, sy
+  if (srcrect) {
+    sw = srcrect->w;
+    sh = srcrect->h;
+    sx = srcrect->x;
+    sy = srcrect->y;
+  }else {
+    // copy entire surface
+    sw = src->w;
+    sh = src->h;
+    sx = sy = 0;
+    if (dst->w == 0 && dst->h == 0) {
+      dst->w = sw, dst->h = sh;
+      dst->pixels = malloc(sizeof(uint32_t) * sw * sh);
+    }
+  }
+  // printf("orsx: %d, orsy: %d, orsw: %d, orsh: %d, x: %d, y: %d\n",sx,sy,sw,sh,x,y);
+
+  //clip sw, sh
+  if (x + sw > dst->w) {
+    sw = dst->w - x;
+  }
+
+  if (y + sh > dst->h) {
+    sh = dst->h - y;
+  }
+
+  //record
+  if (dstrect)
+    dstrect->w = sw, dstrect->h = sh;
+
+  // printf("sx: %d, sy: %d, sw: %d, sh: %d, x: %d, y: %d\n",sx,sy,sw,sh,x,y);
+  //copy
+  for (int i = 0; i < sh; ++i) {
+    uint32_t *srcp = (uint32_t *)(src->pixels + (sy + i) * src->pitch + sx * 4);
+    uint32_t *dstp = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
+    for (int j = 0; j < sw; ++j) {
+      dstp[j] = srcp[j];
+    }
+  }
+
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  printf("SDL_FillRect not imp");
-  assert(0);
+  int x,y,w,h;
+  if (dstrect)
+    x = dstrect->x, y = dstrect->y , w = dstrect->w, h = dstrect->h;
+  else
+    x = 0, y = 0, w = dst->w, h = dst->h;
+
+  for (int i = 0; i < h; ++i) {
+    uint32_t *s = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
+    for (int j = 0; j < w; ++j) {
+      s[j] = color;
+    }
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {

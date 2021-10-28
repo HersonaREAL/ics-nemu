@@ -61,6 +61,8 @@ void NDL_OpenCanvas(int *w, int *h) {
 
     screen_w = *w > max_w || *w == 0 ? max_w : *w;
     screen_h = *h > max_h || *h == 0 ? max_h : *h;
+    *w = screen_w;
+    *h = screen_h;
     // printf("*w > max_w = %d\n",*w > max_w);
     // printf("w: %d,h: %d\n",*w,*h);
     // printf("max_w: %d,max_h: %d\n",max_w,max_h);
