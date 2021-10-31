@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,6 +9,8 @@
 
 static int evtdev = -1;
 static int fbdev = -1;
+static int sbdev = -1;
+static int sbctldev = -1;
 static int screen_w = 0, screen_h = 0, max_w = 0, max_h = 0;
 static int x_cor_val = 0, y_cor_val = 0;
 static uint64_t tick_start;
@@ -91,17 +94,33 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
 }
 
 void NDL_OpenAudio(int freq, int channels, int samples) {
+  sbdev =  open("/dev/sb", 0, 0);
+  sbctldev = open("/dev/sbctl",0,0);
+  assert(sbdev >= 0 && sbctldev >= 0);
+  // printf("open audio %d, %d\n",sbdev,sbctldev);
+  int data[3] = {freq,channels,samples};
+  write(sbctldev, data, sizeof(data));
 }
 
 void NDL_CloseAudio() {
+  close(sbdev);
+  close(sbctldev);
+  sbdev = -1;
+  sbctldev = -1;
 }
 
 int NDL_PlayAudio(void *buf, int len) {
-  return 0;
+  if (sbdev < 0) return -1;
+  // printf("play! len: %d\n",len);
+  return write(sbdev, buf, len);
 }
 
 int NDL_QueryAudio() {
-  return 0;
+  static char buf[64];
+  if (sbctldev < 0) return -1;
+  read(sbctldev,buf,sizeof(buf));
+  // printf("left: %s\n",buf);
+  return atoi(buf);
 }
 
 int NDL_Init(uint32_t flags) {

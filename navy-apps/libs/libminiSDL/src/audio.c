@@ -1,22 +1,68 @@
 #include <NDL.h>
 #include <SDL.h>
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+static uint8_t *stream;
+static size_t stream_len;
+static void (*cb)(void *userdata, uint8_t *stream, int len);
+static uint64_t cb_interval = 0;
+static int pause_play = 1;
+
+void SDL_CallbackHelper() {
+  static uint64_t last = 0;
+  // return;
+  if (pause_play == 1) {
+    printf("pause assert!\n");
+    return;
+  }
+  if (NDL_QueryAudio() < stream_len) {
+    // printf("no space to use! free space: %d, need: %lu\n",NDL_QueryAudio(),stream_len);
+    return;
+  }
+
+  uint64_t now = SDL_GetTicks();
+  // printf("call back! now: %lu, last: %lu, cb_interval: %lu\n",now,last,cb_interval);
+  if (now - last > cb_interval) {
+    cb(NULL, stream, stream_len);
+    NDL_PlayAudio(stream,stream_len);
+    last = now;
+  }
+}
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
-  printf("SDL_OpenAudio not imp!\n");
-  // assert(0);
+  assert(desired);
+  NDL_OpenAudio(desired->freq,desired->channels,desired->samples);
+  pause_play = 1;
+
+  stream = (uint8_t *)malloc(sizeof(uint8_t) * desired->samples);
+  stream_len = desired->samples;
+
+  //TODO cb_interval
+  cb = desired->callback;
+  assert(cb);
+  cb_interval = (stream_len / (((desired->freq * 4 / 1000)) * desired->channels));
+
+  printf("freq: %d, channedls: %d, samples: %d, cb_interval: %lu ms\n",desired->freq,desired->channels,desired->samples,cb_interval);
   return 0;
 }
 
 void SDL_CloseAudio() {
-  printf("SDL_CloseAudio not imp!\n");
-  // assert(0);
+  NDL_CloseAudio();
+  free(stream);
+  stream = NULL;
+  stream_len = 0;
+  cb = NULL;
+  cb_interval = 0;
+  pause_play = 1;
 }
 
 void SDL_PauseAudio(int pause_on) {
-  printf("SDL_PauseAudio not imp!\n");
-  // assert(0);
+  //non-zero to pause, 0 to unpause
+  pause_play = pause_on;
 }
 
 void SDL_MixAudio(uint8_t *dst, uint8_t *src, uint32_t len, int volume) {

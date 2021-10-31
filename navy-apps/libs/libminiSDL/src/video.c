@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+void SDL_CallbackHelper();
+
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   // printf("SDL_BlitSurface SDL_BlitSurface,%d\n",rand());
   // printf("srcface w: %d, src h: %d, dstface w: %d, h: %d,  %d\n",src->w,src->h,dst->w,dst->h,rand());
@@ -13,7 +15,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
   int sw,sh,sx,sy,x,y;
-
+  SDL_CallbackHelper();
   // dst x, y
   if (dstrect) {
     // printf("dstrect->x: %d,dstrect->y: %d\n",dstrect->x,dstrect->y);
@@ -57,6 +59,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
   // printf("sx: %d, sy: %d, sw: %d, sh: %d, x: %d, y: %d, %d\n",sx,sy,sw,sh,x,y,rand());
   //copy
+  SDL_CallbackHelper();
   if (src->format->BitsPerPixel == 8) {
     for (int i = 0; i < sh; ++i) {
       uint8_t *srcp = (src->pixels + (sy + i) * src->pitch + sx);
@@ -64,7 +67,9 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
       for (int j = 0; j < sw; ++j) {
         dstp[j] = srcp[j];
       }
+      SDL_CallbackHelper();
     }
+    SDL_CallbackHelper();
     return;
   }
 
@@ -74,8 +79,9 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     for (int j = 0; j < sw; ++j) {
       dstp[j] = srcp[j];
     }
+    SDL_CallbackHelper();
   }
-
+  SDL_CallbackHelper();
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
@@ -86,12 +92,15 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   else
     x = 0, y = 0, w = dst->w, h = dst->h;
 
+  SDL_CallbackHelper();
   for (int i = 0; i < h; ++i) {
     uint32_t *s = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
     for (int j = 0; j < w; ++j) {
       s[j] = color;
     }
+    SDL_CallbackHelper();
   }
+  SDL_CallbackHelper();
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
@@ -101,7 +110,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   if (x == 0 && y == 0 && w == 0 && h == 0) 
     w = s->w, h = s->h;
 
-  
+  SDL_CallbackHelper();
   if (s->format->BitsPerPixel == 8) {
     assert(s->format->palette);
     for (int i = 0; i < h; ++i) {
@@ -114,14 +123,18 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
         pix[j] = ((uint32_t)r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
       }
       NDL_DrawRect(pix, x, y + i, w, 1);
+      SDL_CallbackHelper();
     }
+    SDL_CallbackHelper();
     return;
   }
 
   // not sure
   for (int i = 0; i < h; ++i) {
     NDL_DrawRect((uint32_t *)(s->pixels + (y + i) * s->pitch + x * 4), x, y + i, w, 1);
+    SDL_CallbackHelper();
   }
+  SDL_CallbackHelper();
   
 }
 
