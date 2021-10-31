@@ -16,7 +16,7 @@ void SDL_CallbackHelper() {
   static uint64_t last = 0;
   // return;
   if (pause_play == 1) {
-    printf("pause assert!\n");
+    // printf("pause assert!\n");
     return;
   }
   if (NDL_QueryAudio() < stream_len) {
