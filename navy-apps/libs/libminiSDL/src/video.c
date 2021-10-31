@@ -7,8 +7,8 @@
 #include <stdlib.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
-  // printf("SDL_BlitSurface SDL_BlitSurface\n");
-  // printf("srcface w: %d, src h: %d, dstface w: %d, h: %d\n",src->w,src->h,dst->w,dst->h);
+  // printf("SDL_BlitSurface SDL_BlitSurface,%d\n",rand());
+  // printf("srcface w: %d, src h: %d, dstface w: %d, h: %d,  %d\n",src->w,src->h,dst->w,dst->h,rand());
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
 
@@ -34,10 +34,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     sw = src->w;
     sh = src->h;
     sx = sy = 0;
-    if (dst->w == 0 && dst->h == 0) {
-      dst->w = sw, dst->h = sh;
-      dst->pixels = malloc(sizeof(uint32_t) * sw * sh);
-    }
   }
   // printf("orsx: %d, orsy: %d, orsw: %d, orsh: %d, x: %d, y: %d\n",sx,sy,sw,sh,x,y);
 
@@ -54,8 +50,19 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   if (dstrect)
     dstrect->w = sw, dstrect->h = sh;
 
-  // printf("sx: %d, sy: %d, sw: %d, sh: %d, x: %d, y: %d\n",sx,sy,sw,sh,x,y);
+  // printf("sx: %d, sy: %d, sw: %d, sh: %d, x: %d, y: %d, %d\n",sx,sy,sw,sh,x,y,rand());
   //copy
+  if (src->format->BitsPerPixel == 8) {
+    for (int i = 0; i < sh; ++i) {
+      uint8_t *srcp = (src->pixels + (sy + i) * src->pitch + sx);
+      uint8_t *dstp = (dst->pixels + (y + i) * dst->pitch + x);
+      for (int j = 0; j < sw; ++j) {
+        dstp[j] = srcp[j];
+      }
+    }
+    return;
+  }
+
   for (int i = 0; i < sh; ++i) {
     uint32_t *srcp = (uint32_t *)(src->pixels + (sy + i) * src->pitch + sx * 4);
     uint32_t *dstp = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
@@ -68,6 +75,7 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   int x,y,w,h;
+  // printf("SDL_FillRectSDL_FillRectSDL_FillRectSDL_FillRectSDL_FillRectSDL_FillRectSDL_FillRect\n");
   if (dstrect)
     x = dstrect->x, y = dstrect->y , w = dstrect->w, h = dstrect->h;
   else
@@ -84,8 +92,28 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   // lock
   // printf("x: %d, y: %d, w: %d, h: %d, s->pitch: %d, s->w: %d, s->h: %d\n",x,y,w,h,s->pitch,s->w,s->h);
+
   if (x == 0 && y == 0 && w == 0 && h == 0) 
-    return NDL_DrawRect((uint32_t *)s->pixels,0,0,s->w,s->h);
+    w = s->w, h = s->h;
+
+  
+  if (s->format->BitsPerPixel == 8) {
+    assert(s->format->palette);
+    uint32_t *pix = (uint32_t *)malloc(sizeof(uint32_t) * w);
+    for (int i = 0; i < h; ++i) {
+      //fill row pix
+      uint8_t *rowPix = s->pixels + (y + i) * s->pitch + x;
+      for (int j = 0; j < w; ++j) {
+        uint8_t r = s->format->palette->colors[rowPix[j]].r;
+        uint8_t g = s->format->palette->colors[rowPix[j]].g;
+        uint8_t b = s->format->palette->colors[rowPix[j]].b;
+        pix[j] = ((uint32_t)r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
+      }
+      NDL_DrawRect(pix, x, y + i, w, 1);
+    }
+    free(pix);
+    return;
+  }
 
   // not sure
   for (int i = 0; i < h; ++i) {
@@ -186,6 +214,7 @@ void SDL_SoftStretch(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
   int h = (srcrect == NULL ? src->h : srcrect->h);
 
   assert(dstrect);
+  // printf("w: %d, dstrect->w: %d, h: %d, dstrect->h: %d\n",w,dstrect->w,h,dstrect->h);
   if(w == dstrect->w && h == dstrect->h) {
     /* The source rectangle and the destination rectangle
      * are of the same size. If that is the case, there

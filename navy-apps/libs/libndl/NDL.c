@@ -10,6 +10,7 @@ static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0, max_w = 0, max_h = 0;
 static int x_cor_val = 0, y_cor_val = 0;
+static uint64_t tick_start;
 
 static char *parseWH(char *buf, int *res) {
   *res = 0;
@@ -24,7 +25,7 @@ static char *parseWH(char *buf, int *res) {
 uint32_t NDL_GetTicks() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+  return ((uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000) - tick_start;
 }
 
 int NDL_PollEvent(char *buf, int len) {
@@ -109,6 +110,11 @@ int NDL_Init(uint32_t flags) {
   } else {
     evtdev = open("/dev/events",0,0);
   }
+
+  // get tick start
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  tick_start = ((uint64_t)tv.tv_sec * 1000 + (uint64_t)tv.tv_usec / 1000);
   return 0;
 }
 

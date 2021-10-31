@@ -27,6 +27,6 @@ int SDL_ShowCursor(int toggle) {
 }
 
 void SDL_WM_SetCaption(const char *title, const char *icon) {
-  printf("SDL_WM_SetCaption not imp!\n");
-  assert(0);
+  printf("SDL_WM_SetCaption not imp!,title: %s, icon: %s\n",title,icon);
+  // assert(0);
 }

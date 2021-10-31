@@ -1,7 +1,9 @@
 #include <NDL.h>
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <sdl-timer.h>
+#include <stdlib.h>
 
 SDL_TimerID SDL_AddTimer(uint32_t interval, SDL_NewTimerCallback callback, void *param) {
   printf("SDL_AddTimer not imp!\n");
@@ -20,6 +22,8 @@ uint32_t SDL_GetTicks() {
 }
 
 void SDL_Delay(uint32_t ms) {
-  printf("SDL_Delay not imp!\n");
-  assert(0);
+  // printf("will spend %u ms\n",ms);
+  uint32_t now = SDL_GetTicks();
+  while (SDL_GetTicks() - now < ms);
+  // printf("ectually spend %u ms,%d\n",SDL_GetTicks() - now,rand());
 }

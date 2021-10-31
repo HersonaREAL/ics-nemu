@@ -12,6 +12,8 @@ static const char *keyname[] = {
   _KEYS(keyname)
 };
 
+static uint8_t keyState[sizeof(keyname)/sizeof(char *)] = {0};
+
 int SDL_PushEvent(SDL_Event *ev) {
   printf("SDL_PushEvent not imp!\n");
   assert(0);
@@ -33,7 +35,9 @@ int SDL_PollEvent(SDL_Event *event) {
   *s = '\0';
   for (uint8_t i = 0;i < sizeof(keyname)/sizeof(char *);++i) {
     if (strcmp(p, keyname[i]) == 0) {
+      // printf("key actived! %s\n",keyname[i]);
       event->key.keysym.sym = i;
+      keyState[i] = event->type == SDL_KEYUP ? 0 : 1;
       return 1;
     }
   }
@@ -56,6 +60,7 @@ int SDL_WaitEvent(SDL_Event *event) {
   for (uint8_t i = 0;i < sizeof(keyname)/sizeof(char *);++i) {
     if (strcmp(p, keyname[i]) == 0) {
       event->key.keysym.sym = i;
+      keyState[i] = event->type == SDL_KEYUP ? 0 : 1;
       return 1;
     }
   }
@@ -70,7 +75,5 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 }
 
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  printf("SDL_GetKeyState not imp!\n");
-  assert(0);
-  return NULL;
+  return keyState;
 }
