@@ -1,6 +1,7 @@
 #include <nterm.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <SDL.h>
 
@@ -27,14 +28,14 @@ static void sh_handle_cmd(const char *cmd) {
   if (strncmp(cmd,"echo",4) == 0) {
     sh_printf("%s",cmd + 5);
   } else {
-    execv(cmd,NULL);
+    execvp(cmd, NULL);
   }
 }
 
 void builtin_sh_run() {
   sh_banner();
   sh_prompt();
-
+  setenv("PATH", "/bin", 0);
   while (1) {
     SDL_Event ev;
     if (SDL_PollEvent(&ev)) {
