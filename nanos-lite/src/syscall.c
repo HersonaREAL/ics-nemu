@@ -1,4 +1,5 @@
 #include <common.h>
+#include <proc.h>
 #include <fs.h>
 #include <stdint.h>
 #include "debug.h"
@@ -36,7 +37,7 @@ struct timezone {
   int tz_minuteswest;     /* minutes west of Greenwich */
   int tz_dsttime;         /* type of DST correction */
 };
-
+extern void naive_uload(PCB *pcb, const char *filename);
 
 uintptr_t sys_write(int fd, void *buf, size_t count) {
   #if config_strace
@@ -89,6 +90,11 @@ uintptr_t sys_gettimeofday(struct timeval *tv, struct timezone *tz) {
   return 0;
 }
 
+uintptr_t sys_execve(const char *fname, char * const argv[], char *const envp[]) {
+  naive_uload(NULL, fname);
+  return 0;
+}
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -103,7 +109,7 @@ void do_syscall(Context *c) {
               c->GPRx = 0;
               break;
     case SYS_exit :
-              halt(c->GPR2);
+              naive_uload(NULL, "/bin/menu");
               break;
     case SYS_write:
               c->GPRx = sys_write(c->GPR2, (void *)c->GPR3, c->GPR4);
@@ -125,6 +131,9 @@ void do_syscall(Context *c) {
               break;
     case SYS_gettimeofday:
               c->GPRx = sys_gettimeofday((struct timeval*)c->GPR2, (struct timezone *)c->GPR3);
+              break;
+    case SYS_execve:
+              c->GPRx = sys_execve((const char *)c->GPR2, (char *const *)c->GPR3, (char *const *)c->GPR4);
               break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
