@@ -38,7 +38,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     sx = sy = 0;
   }
   // printf("orsx: %d, orsy: %d, orsw: %d, orsh: %d, x: %d, y: %d\n",sx,sy,sw,sh,x,y);
-  SDL_CallbackHelper();
   //clip sw, sh
   if (x + sw > dst->w) {
     sw = dst->w - x;
@@ -66,7 +65,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
       uint8_t *dstp = (dst->pixels + (y + i) * dst->pitch + x);
       for (int j = 0; j < sw; ++j) {
         dstp[j] = srcp[j];
-        SDL_CallbackHelper();
       }
     }
     SDL_CallbackHelper();
@@ -78,7 +76,6 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     uint32_t *dstp = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
     for (int j = 0; j < sw; ++j) {
       dstp[j] = srcp[j];
-      SDL_CallbackHelper();
     }
   }
   SDL_CallbackHelper();
@@ -97,7 +94,6 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     uint32_t *s = (uint32_t *)(dst->pixels + (y + i) * dst->pitch + x * 4);
     for (int j = 0; j < w; ++j) {
       s[j] = color;
-      SDL_CallbackHelper();
     }
   }
   SDL_CallbackHelper();
@@ -121,10 +117,9 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
         uint8_t g = s->format->palette->colors[rowPix[j]].g;
         uint8_t b = s->format->palette->colors[rowPix[j]].b;
         pix[j] = ((uint32_t)r << 16) | ((uint32_t)g << 8) | ((uint32_t)b);
-        SDL_CallbackHelper();
       }
-      NDL_DrawRect(pix, x, y + i, w, 1);
       SDL_CallbackHelper();
+      NDL_DrawRect(pix, x, y + i, w, 1);
     }
     SDL_CallbackHelper();
     return;
@@ -134,7 +129,6 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   for (int i = 0; i < h; ++i) {
     SDL_CallbackHelper();
     NDL_DrawRect((uint32_t *)(s->pixels + (y + i) * s->pitch + x * 4), x, y + i, w, 1);
-    SDL_CallbackHelper();
   }
   SDL_CallbackHelper();
   
