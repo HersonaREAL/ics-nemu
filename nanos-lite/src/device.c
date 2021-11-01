@@ -91,7 +91,7 @@ size_t sb_write(const void *buf, size_t offset, size_t len) {
     sbuf.start += nwrite;
     nplay += nwrite;
   }
-
+  
   return len;
 }
 

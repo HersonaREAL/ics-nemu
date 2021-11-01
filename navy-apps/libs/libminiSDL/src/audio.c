@@ -6,14 +6,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static uint8_t *stream;
-static size_t stream_len;
-static void (*cb)(void *userdata, uint8_t *stream, int len);
+static uint8_t *stream = NULL;
+static size_t stream_len = 0;
+static void (*cb)(void *userdata, uint8_t *stream, int len) = NULL;
 static uint64_t cb_interval = 0;
 static int pause_play = 1;
 
 void SDL_CallbackHelper() {
-  static uint64_t last = 0;
+  static uint64_t last = 0, reen = 1;
+  if (!reen) return;
+
+  if (!stream || !cb) return;
   // return;
   if (pause_play == 1) {
     // printf("pause assert!\n");
@@ -23,14 +26,15 @@ void SDL_CallbackHelper() {
     // printf("no space to use! free space: %d, need: %lu\n",NDL_QueryAudio(),stream_len);
     return;
   }
-
+  reen = 0;
   uint64_t now = SDL_GetTicks();
   // printf("call back! now: %lu, last: %lu, cb_interval: %lu\n",now,last,cb_interval);
-  if (now - last > cb_interval) {
+  if (now - last >= cb_interval) {
     cb(NULL, stream, stream_len);
     NDL_PlayAudio(stream,stream_len);
     last = now;
   }
+  reen = 1;
 }
 
 int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
@@ -38,15 +42,14 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
   NDL_OpenAudio(desired->freq,desired->channels,desired->samples);
   pause_play = 1;
 
-  stream = (uint8_t *)malloc(sizeof(uint8_t) * desired->samples);
-  stream_len = desired->samples;
+  stream = (uint8_t *)malloc(sizeof(uint8_t) * desired->samples * 2);
+  stream_len = desired->samples * 2;
 
-  //TODO cb_interval
   cb = desired->callback;
   assert(cb);
-  cb_interval = (stream_len / (((desired->freq * 4 / 1000)) * desired->channels));
+  cb_interval = stream_len / ((desired->freq  / 1000) * desired->channels * 2);
 
-  printf("freq: %d, channedls: %d, samples: %d, cb_interval: %lu ms\n",desired->freq,desired->channels,desired->samples,cb_interval);
+  printf("freq: %d, channels: %d, samples: %d, cb_interval: %lu ms\n",desired->freq,desired->channels,desired->samples,cb_interval);
   return 0;
 }
 
