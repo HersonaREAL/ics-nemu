@@ -109,7 +109,7 @@ void do_syscall(Context *c) {
               c->GPRx = 0;
               break;
     case SYS_exit :
-              naive_uload(NULL, "/bin/menu");
+              naive_uload(NULL, "/bin/nterm");
               break;
     case SYS_write:
               c->GPRx = sys_write(c->GPR2, (void *)c->GPR3, c->GPR4);

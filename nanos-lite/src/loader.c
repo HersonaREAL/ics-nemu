@@ -2,6 +2,7 @@
 #include <elf.h>
 #include <fs.h>
 #include <common.h>
+#include <stdio.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -20,7 +21,25 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   Elf_Phdr seg;
   int ret, n, fd;
 
+  //clean screen
+  int fb_fd = fs_open("/dev/fb",0,0);
+  int w = io_read(AM_GPU_CONFIG).width;
+  int h = io_read(AM_GPU_CONFIG).height;
+  int zero[4096] = {0};
+  fs_lseek(fb_fd, 0, 0);
+  for (int i = 0; i < h ; ++i)
+    fs_write(fb_fd, &zero, w * 4);
+  fs_lseek(fb_fd, 0, 0);
+
   //open file
+  char *p = (char *)filename;
+  while(*p) {
+    if (*p == '\n'|| *p == ' ') {
+      *p = '\0';
+      break;
+    }
+    ++p;
+  }
   fd = fs_open(filename, 0, 0);
 
   // check header
