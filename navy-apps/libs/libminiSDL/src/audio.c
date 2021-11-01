@@ -42,12 +42,12 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
   NDL_OpenAudio(desired->freq,desired->channels,desired->samples);
   pause_play = 1;
 
-  stream = (uint8_t *)malloc(sizeof(uint8_t) * desired->samples * 2);
-  stream_len = desired->samples * 2;
+  stream = (uint8_t *)malloc(sizeof(uint8_t) * desired->samples * 4);
+  stream_len = desired->samples * 4;
 
   cb = desired->callback;
   assert(cb);
-  cb_interval = stream_len / ((desired->freq  / 1000) * desired->channels * 2);
+  cb_interval = stream_len / ((desired->freq  / 1000) * desired->channels * 4);
 
   printf("freq: %d, channels: %d, samples: %d, cb_interval: %lu ms\n",desired->freq,desired->channels,desired->samples,cb_interval);
   return 0;
