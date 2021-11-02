@@ -47,7 +47,7 @@ int SDL_OpenAudio(SDL_AudioSpec *desired, SDL_AudioSpec *obtained) {
 
   cb = desired->callback;
   assert(cb);
-  cb_interval = stream_len / ((desired->freq  / 1000) * desired->channels * 4);
+  cb_interval = desired->samples / ((desired->freq  / 1000) * desired->channels);
 
   printf("freq: %d, channels: %d, samples: %d, cb_interval: %lu ms\n",desired->freq,desired->channels,desired->samples,cb_interval);
   return 0;
