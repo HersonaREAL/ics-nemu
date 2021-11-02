@@ -45,6 +45,16 @@ function init_no_git() {
   git commit --no-verify --allow-empty -am "$1 $version initialized without tracing"$'\n\n'"$log"
 }
 
+function pre() {
+  export AM_HOME="`readlink -e abstract-machine`"
+  export NEMU_HOME="`readlink -e nemu`"
+  export NAVY_HOME="`readlink -e navy-apps`"
+
+  echo "export $AM_HOME"
+  echo "export $NEMU_HOME"
+  echo "export $NAVY_HOME"
+}
+
 case $1 in
   nemu)
     init nemu NEMU_HOME
@@ -61,6 +71,9 @@ case $1 in
     ;;
   navy-apps)
     init navy-apps NAVY_HOME
+    ;;
+  pre)
+    pre
     ;;
   *)
     echo "Invalid input..."
